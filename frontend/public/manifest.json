@@ -1,0 +1,8 @@
+{
+	"short_name": "Salão de Beleza",
+	"name": "Sistema de Gestão de Salão de Beleza",
+	"start_url": ".",
+	"display": "standalone",
+	"theme_color": "#000000",
+	"background_color": "#ffffff"
+}
