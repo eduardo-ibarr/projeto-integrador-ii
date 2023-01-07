@@ -26,7 +26,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { FooterSubmits } from '../../../components/FooterSubmits';
 import { HeaderText } from '../../../components/HeaderText';
 
-import { useCreateClient } from '../../../hooks/clients/useCreateClient';
+import { useCreateClient } from '../../../hooks/clients';
 
 const warningMessage = 'Preencha corretamente este campo';
 
@@ -43,26 +43,20 @@ export const ClientRegistrationPage = () => {
 		register,
 		handleSubmit,
 		formState: { errors },
-		clearErrors,
 	} = useForm({
 		resolver: yupResolver(schema),
 	});
 
-	const { mutateAsync: createNewClient } = useCreateClient();
+	const { mutateAsync: createNewClient, isLoading } = useCreateClient();
 
 	const [showModal, setShowModal] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
 
 	const handleClose = () => {
 		setShowModal(false);
-		window.location.reload();
 	};
 
-	const onSubmit = async (data) => {
-		clearErrors();
-		console.log(data);
-
-		const client = {
+	const generateClient = (data) => {
+		return {
 			_id: v4(),
 			name: data.name,
 			isActive: true,
@@ -73,10 +67,14 @@ export const ClientRegistrationPage = () => {
 			services: [],
 			createdAt: new Date(),
 		};
+	};
 
+	const onSubmit = async (data) => {
 		try {
-			setIsLoading(true);
-			await createNewClient(client).then(() => setIsLoading(false));
+			const client = generateClient(data);
+
+			await createNewClient(client);
+
 			setShowModal(true);
 		} catch (error) {
 			console.error(error);

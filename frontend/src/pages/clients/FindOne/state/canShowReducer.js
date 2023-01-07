@@ -1,4 +1,4 @@
-function canShowReducer(state, action) {
+export const canShowReducer = (state, action) => {
 	switch (action.type) {
 		case 'RG':
 			return { ...state, rg: action.value };
@@ -9,6 +9,4 @@ function canShowReducer(state, action) {
 		default:
 			break;
 	}
-}
-
-export default canShowReducer;
+};

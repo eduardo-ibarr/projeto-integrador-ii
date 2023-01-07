@@ -7,7 +7,6 @@ import {
 	Card,
 	CardActions,
 	CardContent,
-	CircularProgress,
 	FormControl,
 	FormControlLabel,
 	FormHelperText,
@@ -28,34 +27,35 @@ import {
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { SideMenu } from '../../components/SideMenu';
-
 import { Controller, useForm } from 'react-hook-form';
+
+import { SideMenu } from '../../components/SideMenu';
+import { AlertDelete } from '../../components/AlertDelete';
+import { LoadingPage } from '../../components/LoadingPage';
 
 import { theme } from '../../theme/theme';
 
+import { modalStyle } from '../../theme/modalStyle';
 import './styles.css';
 
-import { useListAttendances } from '../../hooks/attendance/useListAttendances';
-import { useListClients } from '../../hooks/clients/useListClients';
+import {
+	useListActiveAttendances,
+	useInactivateAttendance,
+	useUpdateAttendance,
+} from '../../hooks/attendance';
 
-import { modalStyle } from '../../theme/modalStyle';
-import { useInactivateAttendance } from '../../hooks/attendance/useInactivateAttendance';
-import { AlertDelete } from '../../components/AlertDelete';
-import { useUpdateAttendance } from '../../hooks/attendance/useUpdateAttendance';
-import { attendanceReducer } from './state/attendanceReducer';
-import { attendanceInitialState } from './state/attendanceInitialState';
+import { useListActiveClients } from '../../hooks/clients/useListActiveClients';
+
+import { homePageReducer } from './state/homePageReducer';
+import { homePageInitialState } from './state/homePageInitialState';
 
 export const Home = () => {
 	const { data: attendances, isLoading: isLoadingAttendances } =
-		useListAttendances();
-
-	const { data: clients, isLoading: isLoadingClients } = useListClients();
-
+		useListActiveAttendances();
+	const { data: clients, isLoading: isLoadingClients } =
+		useListActiveClients();
 	const { mutateAsync: inactivateAttendance } = useInactivateAttendance();
-
-	const { mutateAsync: updateAttendance, isLoading: isLoadingUpdate } =
-		useUpdateAttendance();
+	const { mutateAsync: updateAttendance } = useUpdateAttendance();
 
 	const {
 		handleSubmit,
@@ -72,12 +72,11 @@ export const Home = () => {
 	});
 
 	const { isDone, isPaid } = watch();
-
 	const [day, setDay] = useState();
 
-	const [attendanceState, dispatchAttendance] = useReducer(
-		attendanceReducer,
-		attendanceInitialState
+	const [homePageState, dispatchHomePage] = useReducer(
+		homePageReducer,
+		homePageInitialState
 	);
 
 	const attendancesForTheDay = useMemo(() => {
@@ -90,7 +89,16 @@ export const Home = () => {
 					moment(day).format('DD/MM/yyyy');
 
 				if (isSameDate) {
-					results.push(attendance);
+					const clientOfTheAttendance = clients.find(
+						(client) => client._id === attendance.client
+					);
+
+					const attendanceWithClientName = {
+						...attendance,
+						clientName: clientOfTheAttendance.name,
+					};
+
+					results.push(attendanceWithClientName);
 				}
 			}
 
@@ -101,19 +109,19 @@ export const Home = () => {
 	}, [day, isLoadingAttendances, isLoadingClients]);
 
 	if (isLoadingAttendances) {
-		return <h3>carregando...</h3>;
+		return <LoadingPage />;
 	}
 
 	if (isLoadingClients) {
-		return <h3>carregando...</h3>;
+		return <LoadingPage />;
 	}
 
 	const handleCloseFinishModal = () => {
-		dispatchAttendance({ type: 'SET_CLOSE_FINISH_MODAL', value: false });
+		dispatchHomePage({ type: 'SET_CLOSE_FINISH_MODAL', value: false });
 	};
 
 	const handleCloseInactivateModal = () => {
-		dispatchAttendance({
+		dispatchHomePage({
 			type: 'SET_CLOSE_INACTIVATE_MODAL',
 			value: false,
 		});
@@ -124,14 +132,12 @@ export const Home = () => {
 		setDay(input);
 	};
 
-	console.log('RENDER');
-
 	const onSubmit = async (data) => {
 		try {
 			const { isDone, isPaid, totalPaid } = data;
 
 			await updateAttendance({
-				id: attendanceState.id,
+				id: homePageState.selectedAttendanceId,
 				data: { isDone, isPaid, total: totalPaid },
 			});
 		} catch (error) {
@@ -141,7 +147,7 @@ export const Home = () => {
 
 	const handleInactivateAttendance = async () => {
 		try {
-			await inactivateAttendance(attendanceState.id);
+			await inactivateAttendance(homePageState.selectedAttendanceId);
 			window.location.reload();
 		} catch (error) {
 			throw new Error(error);
@@ -191,7 +197,7 @@ export const Home = () => {
 														variant="h5"
 														component="div"
 													>
-														{clients[i]?.name}
+														{attendance.clientName}
 													</Typography>
 													<Typography
 														sx={{ mb: 1.5 }}
@@ -235,12 +241,13 @@ export const Home = () => {
 														<IconButton
 															size="large"
 															onClick={() => {
-																dispatchAttendance(
+																dispatchHomePage(
 																	{
 																		type: 'SET_OPEN_FINISH_MODAL',
 																		values: {
 																			openFinishModal: true,
-																			id: attendance._id,
+																			selectedAttendanceId:
+																				attendance._id,
 																		},
 																	}
 																);
@@ -258,12 +265,13 @@ export const Home = () => {
 														<IconButton
 															size="large"
 															onClick={() =>
-																dispatchAttendance(
+																dispatchHomePage(
 																	{
 																		type: 'SET_OPEN_INACTIVATE_MODAL',
 																		values: {
 																			openInactivateModal: true,
-																			id: attendance._id,
+																			selectedAttendanceId:
+																				attendance._id,
 																		},
 																	}
 																)
@@ -283,11 +291,7 @@ export const Home = () => {
 				</Grid>
 			</Grid>
 
-			<Modal
-				open={attendanceState.openFinishModal}
-				aria-labelledby="modal-modal-title"
-				aria-describedby="modal-modal-description"
-			>
+			<Modal open={homePageState.openFinishModal}>
 				<Box sx={modalStyle}>
 					<Typography
 						id="modal-modal-title"
@@ -411,26 +415,22 @@ export const Home = () => {
 						>
 							Cancelar
 						</Button>
-						{isLoadingUpdate ? (
-							<CircularProgress sx={{ color: 'primary.main' }} />
-						) : (
-							<Button
-								variant="text"
-								sx={{ marginRight: '10px' }}
-								onClick={handleSubmit(onSubmit)}
-							>
-								Salvar
-							</Button>
-						)}
+						<Button
+							variant="text"
+							sx={{ marginRight: '10px' }}
+							onClick={handleSubmit(onSubmit)}
+						>
+							Salvar
+						</Button>
 					</Box>
 				</Box>
 			</Modal>
 
-			{attendanceState.openInactivateModal && (
+			{homePageState.openInactivateModal && (
 				<AlertDelete
 					handleCloseModal={handleCloseInactivateModal}
 					handleDelete={handleInactivateAttendance}
-					showModal={attendanceState.openInactivateModal}
+					showModal={homePageState.openInactivateModal}
 					text="atendimento"
 				/>
 			)}

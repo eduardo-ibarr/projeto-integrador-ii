@@ -1,6 +1,6 @@
 const ServiceSchema = require('../../../models/services');
 const connection = require('../../../database/connection');
-const { NOT_FOUND, BAD_REQUEST } = require('../../../constants/status_error');
+const { BAD_REQUEST } = require('../../../constants/status_error');
 
 module.exports = (req, res) => {
     connection.then(
@@ -13,7 +13,7 @@ module.exports = (req, res) => {
                     const index = data.findIndex(item => item);
 
                     if (index === -1) {
-                        res.status(404).send(NOT_FOUND);
+                        res.status(404).send([]);
                     } else {
                         res.status(200).send(data);
                     }

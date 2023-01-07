@@ -1,33 +1,35 @@
 import client from './instance';
 
 export const createNewAttendance = async (values) => {
-	const response = await client.post('/novo_atendimento', values);
+	const response = await client.post('/attendances', values);
 
 	return response.data;
 };
 
 export const listActiveAttendances = async () => {
-	const response = await client.get('/atendimentos');
+	const response = await client.get('/attendances');
 
-	const activeAttendances = response.data.filter((s) => s.isActive);
+	const activeAttendances = response.data.filter(
+		(attendance) => attendance.isActive
+	);
 
 	return activeAttendances;
 };
 
 export const showAttendance = async (id) => {
-	const response = await client.get(`/atendimentos/${id}`);
+	const response = await client.get(`/attendances/${id}`);
 
 	return response.data;
 };
 
 export const updateAttendance = async ({ id, data }) => {
-	const response = await client.patch(`/atendimentos/${id}`, data);
+	const response = await client.patch(`/attendances/${id}`, data);
 
 	return response.data;
 };
 
 export const inactivateAttendance = async (id) => {
-	const response = await client.patch(`/atendimentos/${id}`, {
+	const response = await client.patch(`/attendances/${id}`, {
 		isActive: false,
 	});
 
@@ -35,7 +37,7 @@ export const inactivateAttendance = async (id) => {
 };
 
 export const deleteAttendance = async (id) => {
-	const response = await client.delete(`/atendimentos/${id}`);
+	const response = await client.delete(`/attendances/${id}`);
 
 	return response.data;
 };

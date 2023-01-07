@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
 import {
-	Box,
 	Typography,
 	Table,
 	TextField,
@@ -19,56 +18,34 @@ import {
 	Grid,
 } from '@mui/material';
 
-import { ThemeProvider, useTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { TablePaginationActions } from '../../components/TablePaginationActions';
-
 import { SideMenu } from '../../components/SideMenu';
 import { AlertDelete } from '../../components/AlertDelete';
-
-import { chooseApi } from '../../api/chooseApi';
-import { theme } from '../../theme/theme';
-
-import { useAppContext } from '../../contexts/AppContext';
-import { CLOUD, LOCALHOST } from '../../constants/fetchURLs';
+import { LoadingPage } from '../../components/LoadingPage';
 import { FooterButtons } from '../../components/FooterButtons';
 
-export const ClientsPage = () => {
-	const { isLocalHost } = useAppContext();
+import { theme } from '../../theme/theme';
 
-	const [clients, setClients] = useState([]);
+import { useListActiveClients, useInactivateClient } from '../../hooks/clients';
+
+export const ClientsPage = () => {
+	const { data: clients, isLoading } = useListActiveClients();
+
+	const { mutateAsync: inactivateClient } = useInactivateClient();
 
 	const [clientToSearch, setClientToSearch] = useState('');
 
 	const [showModal, setShowModal] = useState(false);
 
-	const [canDelete, setCanDelete] = useState(false);
-	const [IDToDelete, setIDToDelete] = useState(0);
+	const [clientToInactivate, setClientToInactivate] = useState();
 
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(5);
-
-	const filteredClients = clients.filter((client) => {
-		return client.name.toLowerCase().includes(clientToSearch.toLowerCase());
-	});
-
-	const handleGetClients = async () => {
-		const clientsResponse = await fetch(
-			isLocalHost ? LOCALHOST.CLIENTS : CLOUD.CLIENTS
-		);
-		const clientsJSON = await clientsResponse.json();
-
-		const activeClients = clientsJSON.filter((client) => {
-			if (client.isActive) {
-				return client;
-			}
-		});
-
-		setClients(activeClients);
-	};
 
 	const emptyRows =
 		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - clients.length) : 0;
@@ -82,11 +59,6 @@ export const ClientsPage = () => {
 		setPage(0);
 	};
 
-	const handleShowModal = (id) => {
-		setShowModal(true);
-		setIDToDelete(id);
-	};
-
 	const handleCloseModal = () => {
 		setShowModal(false);
 	};
@@ -95,26 +67,21 @@ export const ClientsPage = () => {
 		setClientToSearch(event.target.value);
 	};
 
-	const handleDelete = async (id) => {
-		const response = await chooseApi(isLocalHost).put(`clientes/${id}`, {
-			isActive: false,
-		});
-
-		setClients(response);
-		setCanDelete(false);
-
-		window.location.reload();
+	const handleInactivateClient = async () => {
+		try {
+			await inactivateClient(clientToInactivate);
+		} catch (error) {
+			throw new Error(error);
+		}
 	};
 
-	useEffect(() => {
-		handleGetClients();
-	}, []);
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
-	useEffect(() => {
-		if (canDelete) {
-			handleDelete(IDToDelete);
-		}
-	}, [canDelete, IDToDelete]);
+	const filteredClients = clients.filter((client) => {
+		return client.name.toLowerCase().includes(clientToSearch.toLowerCase());
+	});
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -242,11 +209,12 @@ export const ClientsPage = () => {
 												sx={{ color: 'primary.red' }}
 											>
 												<IconButton
-													onClick={() =>
-														handleShowModal(
+													onClick={() => {
+														setClientToInactivate(
 															client._id
-														)
-													}
+														);
+														setShowModal(true);
+													}}
 												>
 													<DeleteIcon />
 												</IconButton>
@@ -312,7 +280,7 @@ export const ClientsPage = () => {
 					{showModal && (
 						<AlertDelete
 							handleCloseModal={handleCloseModal}
-							setCanDelete={setCanDelete}
+							handleDelete={handleInactivateClient}
 							showModal={showModal}
 							text="cliente"
 						/>

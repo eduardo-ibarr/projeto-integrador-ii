@@ -2,8 +2,8 @@ import { useQuery } from 'react-query';
 
 import { clientsService } from '../../services/api';
 
-export function useShowClient(id) {
-	return useQuery('showClient', () => clientsService.showClient(id), {
+export function useListActiveClients() {
+	return useQuery('listActiveClients', clientsService.listActiveClients, {
 		cacheTime: 0,
 	});
 }

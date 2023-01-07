@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { v4 } from 'uuid';
 
 import {
+	FormControl,
+	FormHelperText,
 	Grid,
 	InputAdornment,
 	Paper,
@@ -10,100 +12,74 @@ import {
 	ThemeProvider,
 } from '@mui/material';
 
-import { validateName } from '../../clients/utils/validateName';
-import { validatePrice } from '../utils/validatePrice';
-import { validateDescription } from '../utils/validateDescription';
+import { useForm } from 'react-hook-form';
+
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import { SideMenu } from '../../../components/SideMenu';
 import { ModalSucess } from '../../../components/ModalSucess';
 
-import { chooseApi } from '../../../api/chooseApi';
 import { theme } from '../../../theme/theme';
 
-import { useAppContext } from '../../../contexts/AppContext';
+import { useCreateService } from '../../../hooks/services';
 import { FooterSubmits } from '../../../components/FooterSubmits';
 import { HeaderText } from '../../../components/HeaderText';
 
+const warningMessage = 'Preencha corretamente este campo';
+
+let schema = yup.object().shape({
+	name: yup.string().required(warningMessage),
+	price: yup.string().required(warningMessage),
+	description: yup.string().required(warningMessage),
+});
+
 export const ServiceRegistrationPage = () => {
-	const { isLocalHost } = useAppContext();
+	const { mutateAsync: createService } = useCreateService();
 
-	const [name, setName] = useState('');
-	const [price, setPrice] = useState('');
-	const [description, setDescription] = useState('');
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		watch,
+	} = useForm({
+		resolver: yupResolver(schema),
+	});
 
-	const [isInvalidName, setIsInvalidName] = useState(false);
-	const [isInvalidPrice, setIsInvalidPrice] = useState(false);
-	const [isInvalidDescription, setIsInvalidDescription] = useState(false);
+	const { name, price, description } = watch();
 
-	const warningMessage = 'Preencha corretamente este campo';
-	const warningPriceMessage = 'Preencha corretamente, exemplo: 50,00';
+	const isDisabled = useMemo(
+		() => name === '' && price === '' && description === '',
+		[name, price, description]
+	);
 
 	const [showModal, setShowModal] = useState(false);
 
-	const [isLoading, setIsLoading] = useState(false);
-
 	const handleCloseModal = () => {
 		setShowModal(false);
-		window.location.reload();
 	};
 
-	const handleValidate = () => {
-		let isAllValid = true;
+	const generateService = (data) => {
+		const { name, price, description } = data;
 
-		if (validateName(name) === false) {
-			setIsInvalidName(true);
-			isAllValid = false;
+		return {
+			_id: v4(),
+			name,
+			isActive: true,
+			price: Number(price.replace(',', '.')),
+			description,
+			createdAt: new Date(),
+		};
+	};
+
+	const onSubmit = async (data) => {
+		try {
+			const service = generateService(data);
+			await createService(service);
+			setShowModal(true);
+		} catch (error) {
+			throw new Error(error);
 		}
-
-		if (validatePrice(price) === false) {
-			setIsInvalidPrice(true);
-			isAllValid = false;
-		}
-		if (validateDescription(description) === false) {
-			setIsInvalidDescription(true);
-			isAllValid = false;
-		}
-
-		if (isAllValid) {
-			handleSubmit();
-		}
-	};
-
-	const handleChangeName = (event) => {
-		setName(event.target.value);
-		setIsInvalidName(false);
-	};
-
-	const handleChangePrice = (event) => {
-		setPrice(event.target.value);
-		setIsInvalidPrice(false);
-	};
-
-	const handleChangeDescription = (event) => {
-		setDescription(event.target.value);
-		setIsInvalidDescription(false);
-	};
-
-	const handleSubmit = async () => {
-		setIsLoading(true);
-
-		await chooseApi(isLocalHost)
-			.post('novo_servico', {
-				_id: v4(),
-				name,
-				isActive: true,
-				price: Number(price.replace(',', '.')),
-				description,
-				createdAt: new Date(),
-			})
-			.then(() => {
-				setIsLoading(false);
-			})
-			.catch((err) => {
-				console.error('ops! ocorreu um erro --> ' + err);
-			});
-
-		setShowModal(true);
 	};
 
 	return (
@@ -126,59 +102,67 @@ export const ServiceRegistrationPage = () => {
 
 					<Paper sx={{ padding: '20px', marginTop: '20px' }}>
 						<Stack spacing={2}>
-							<TextField
-								fullWidth
-								id="outlined-basic"
-								label="Nome"
-								variant="outlined"
-								error={isInvalidName ? true : false}
-								helperText={isInvalidName ? warningMessage : ''}
-								sx={{ marginTop: '25px' }}
-								onChange={handleChangeName}
-							/>
+							<FormControl>
+								<TextField
+									fullWidth
+									id="outlined-basic"
+									{...register('name')}
+									label="Nome"
+									variant="outlined"
+									error={!!errors.name}
+									sx={{ marginTop: '25px' }}
+								/>
+								{!!errors?.name && (
+									<FormHelperText sx={{ color: 'red' }}>
+										{errors?.name?.message}
+									</FormHelperText>
+								)}
+							</FormControl>
 
-							<TextField
-								fullWidth
-								id="outlined-basic"
-								label="Preço"
-								variant="outlined"
-								error={isInvalidPrice ? true : false}
-								helperText={
-									isInvalidPrice ? warningPriceMessage : ''
-								}
-								InputProps={{
-									startAdornment: (
-										<InputAdornment position="start">
-											R$
-										</InputAdornment>
-									),
-								}}
-								onChange={handleChangePrice}
-							/>
+							<FormControl>
+								<TextField
+									id="outlined-basic"
+									label="Preço"
+									variant="outlined"
+									{...register('price')}
+									error={!!errors?.price}
+									InputProps={{
+										startAdornment: (
+											<InputAdornment position="start">
+												R$
+											</InputAdornment>
+										),
+									}}
+								/>
+								{!!errors?.price && (
+									<FormHelperText sx={{ color: 'red' }}>
+										{errors?.name?.message}
+									</FormHelperText>
+								)}
+							</FormControl>
 
-							<TextField
-								fullWidth
-								id="outlined-basic"
-								label="Descrição"
-								variant="outlined"
-								error={isInvalidDescription ? true : false}
-								helperText={
-									isInvalidDescription ? warningMessage : ''
-								}
-								onChange={handleChangeDescription}
-							/>
+							<FormControl>
+								<TextField
+									fullWidth
+									{...register('description')}
+									id="outlined-basic"
+									label="Descrição"
+									variant="outlined"
+									error={!!errors.description}
+								/>
+								{!!errors?.description && (
+									<FormHelperText sx={{ color: 'red' }}>
+										{errors?.description?.message}
+									</FormHelperText>
+								)}
+							</FormControl>
 						</Stack>
 					</Paper>
 
 					<FooterSubmits
 						backTo="/servicos"
-						isDisabled={
-							name !== '' && price !== '' && description !== ''
-								? false
-								: true
-						}
-						isLoading={isLoading}
-						onClick={handleValidate}
+						isDisabled={isDisabled}
+						onClick={handleSubmit(onSubmit)}
 						text="Fazer o cadastro"
 					/>
 

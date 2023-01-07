@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import {
-	Box,
+	FormControl,
+	FormHelperText,
 	Grid,
 	IconButton,
 	InputAdornment,
@@ -14,148 +15,122 @@ import {
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
+import * as yup from 'yup';
 
 import { FooterSubmits } from '../../../components/FooterSubmits';
-
-import { validatePrice } from '../utils/validatePrice';
-import { validateDescription } from '../utils/validateDescription';
-import { validateName } from '../../clients/utils/validateName';
 
 import { SideMenu } from '../../../components/SideMenu';
 import { ModalSucess } from '../../../components/ModalSucess';
 
-import { chooseApi } from '../../../api/chooseApi';
 import { theme } from '../../../theme/theme';
 
-import { useAppContext } from '../../../contexts/AppContext';
-import { CLOUD, LOCALHOST } from '../../../constants/fetchURLs';
+import { serviceReducer } from './state/serviceReducer';
+import { serviceInitialState } from './state/serviceInitialState';
+
 import { HeaderText } from '../../../components/HeaderText';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useShowService, useUpdateService } from '../../../hooks/services';
+import { LoadingPage } from '../../../components/LoadingPage';
+
+const warningMessage = 'Preencha corretamente este campo';
+
+let schema = yup.object().shape({
+	name: yup.string().required(warningMessage),
+	price: yup.string().required(warningMessage),
+	description: yup.string().required(warningMessage),
+});
 
 export const UpdateOneServicePage = () => {
 	const { id } = useParams();
-	const { isLocalHost } = useAppContext();
+	const { mutateAsync: createService } = useUpdateService();
+	const { data: service, isLoading } = useShowService(id);
 
-	const [service, setService] = useState([0]);
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		reset,
+	} = useForm({
+		resolver: yupResolver(schema),
+	});
 
-	const [name, setName] = useState('');
-	const [price, setPrice] = useState('');
-	const [description, setDescription] = useState('');
+	const [serviceState, dispatchService] = useReducer(
+		serviceReducer,
+		serviceInitialState
+	);
 
-	const [isInvalidName, setIsInvalidName] = useState(false);
-	const [isInvalidPrice, setIsInvalidPrice] = useState(false);
-	const [isInvalidDescription, setIsInvalidDescription] = useState(false);
-
-	const [isLoading, setIsLoading] = useState(false);
-
-	const [isDisabledName, setIsDisabledName] = useState(true);
-	const [isDisabledPrice, setIsDisabledPrice] = useState(true);
-	const [isDisabledDescription, setIsDisabledDescription] = useState(true);
+	const isDisabled = useMemo(
+		() =>
+			serviceState.name.disabled &&
+			serviceState.price.disabled &&
+			serviceState.description.disabled,
+		[serviceState]
+	);
 
 	const [showModal, setShowModal] = useState(false);
 
-	const warningMessage = 'Preencha corretamente este campo';
-	const warningPriceMessage = 'Preencha corretamente, exemplo: 50,00';
-
-	const handleGetService = async () => {
-		const servicesResponse = await fetch(
-			isLocalHost ? LOCALHOST.SERVICES + id : CLOUD.SERVICES + id
-		);
-		const servicesJSON = await servicesResponse.json();
-
-		setService(servicesJSON);
-	};
-
-	const handleClose = () => {
+	const handleCloseModal = () => {
 		setShowModal(false);
-		window.location.reload();
-	};
-
-	const handleValidate = () => {
-		let isAllValid = true;
-
-		if (validateName(name) === false) {
-			setIsInvalidName(true);
-			isAllValid = false;
-		}
-
-		if (validatePrice(price) === false) {
-			setIsInvalidPrice(true);
-			isAllValid = false;
-		}
-		if (validateDescription(description) === false) {
-			setIsInvalidDescription(true);
-			isAllValid = false;
-		}
-
-		if (isAllValid) {
-			handleSubmit();
-		}
-	};
-
-	const handleChangeName = (event) => {
-		setName(event.target.value);
-		setIsInvalidName(false);
-	};
-
-	const handleChangePrice = (event) => {
-		setPrice(event.target.value);
-		setIsInvalidPrice(false);
-	};
-
-	const handleChangeDescription = (event) => {
-		setDescription(event.target.value);
-		setIsInvalidDescription(false);
 	};
 
 	const handleDisableName = () => {
-		setIsDisabledName(!isDisabledName);
+		dispatchService({
+			type: 'DISABLE_NAME',
+			disabled: !serviceState.name.disabled,
+		});
 	};
 
 	const handleDisablePrice = () => {
-		setIsDisabledPrice(!isDisabledPrice);
+		dispatchService({
+			type: 'DISABLE_PRICE',
+			disabled: !serviceState.price.disabled,
+		});
 	};
 
 	const handleDisableDescription = () => {
-		setIsDisabledDescription(!isDisabledDescription);
+		dispatchService({
+			type: 'DISABLE_DESCRIPTION',
+			disabled: !serviceState.description.disabled,
+		});
 	};
 
-	const handleSubmit = async () => {
-		setIsLoading(true);
+	const generateService = (data) => {
+		const { name, price, description } = data;
 
-		await chooseApi(isLocalHost)
-			.put(`servicos/${id}`, {
+		return {
+			name,
+			price,
+			description,
+			updatedAt: new Date(),
+		};
+	};
+
+	const onSubmit = async (data) => {
+		try {
+			const service = generateService(data);
+			await createService(service);
+			setShowModal(true);
+		} catch (error) {
+			throw new Error(error);
+		}
+	};
+
+	useEffect(() => {
+		if (!isLoading) {
+			const { name, price, description } = service[0];
+
+			reset({
 				name,
 				price,
 				description,
-				updatedAt: new Date(),
-			})
-			.then(() => {
-				setIsLoading(false);
-			})
-			.catch((err) => {
-				console.error('ops! ocorreu um erro --> ' + err);
 			});
-
-		setShowModal(true);
-	};
-
-	useEffect(() => {
-		if (isDisabledName) {
-			setName(service[0].name);
 		}
+	}, [service]);
 
-		if (isDisabledPrice) {
-			setPrice(service[0].phoneNumber);
-		}
-
-		if (isDisabledDescription) {
-			setDescription(service[0].cpf);
-		}
-	}, [isDisabledName, isDisabledPrice, isDisabledDescription, service]);
-
-	useEffect(() => {
-		handleGetService();
-	}, []);
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -177,19 +152,29 @@ export const UpdateOneServicePage = () => {
 
 					<Paper sx={{ padding: '20px', marginTop: '20px' }}>
 						<Stack spacing={2}>
-							<Box sx={{ display: 'flex', alignItems: 'center' }}>
+							<FormControl
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'row',
+								}}
+							>
 								<TextField
-									id="outlined-basic"
-									label={`Nome: ${service[0].name}`}
-									variant="outlined"
+									{...register('name')}
 									fullWidth
-									disabled={isDisabledName}
-									error={isInvalidName ? true : false}
-									helperText={
-										isInvalidName ? warningMessage : ''
-									}
-									onChange={handleChangeName}
+									id="outlined-basic"
+									label="Nome do servico"
+									disabled={serviceState.name.disabled}
+									variant="outlined"
+									error={!!errors?.name}
 								/>
+								{!!errors?.name && (
+									<FormHelperText
+										sx={{ color: 'red', width: '20rem' }}
+									>
+										{errors?.name?.message}
+									</FormHelperText>
+								)}
 								<Tooltip
 									title="Editar este campo"
 									sx={{ marginLeft: '10px' }}
@@ -198,24 +183,71 @@ export const UpdateOneServicePage = () => {
 										<EditIcon />
 									</IconButton>
 								</Tooltip>
-							</Box>
+							</FormControl>
 
-							<Box sx={{ display: 'flex', alignItems: 'center' }}>
+							<FormControl
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'row',
+								}}
+							>
 								<TextField
-									id="outlined-basic"
-									label={`Descrição: ${service[0].description}`}
-									variant="outlined"
+									{...register('price')}
 									fullWidth
-									disabled={isDisabledDescription}
-									error={isInvalidDescription ? true : false}
-									helperText={
-										isInvalidDescription
-											? warningMessage
-											: ''
-									}
-									onChange={handleChangeDescription}
+									id="outlined-basic"
+									label="Preço"
+									disabled={serviceState.price.disabled}
+									variant="outlined"
+									error={!!errors?.price}
+									InputProps={{
+										startAdornment: (
+											<InputAdornment position="start">
+												R$
+											</InputAdornment>
+										),
+									}}
 								/>
+								{!!errors?.price && (
+									<FormHelperText
+										sx={{ color: 'red', width: '20rem' }}
+									>
+										{errors?.price?.message}
+									</FormHelperText>
+								)}
+								<Tooltip
+									title="Editar este campo"
+									sx={{ marginLeft: '10px' }}
+								>
+									<IconButton onClick={handleDisablePrice}>
+										<EditIcon />
+									</IconButton>
+								</Tooltip>
+							</FormControl>
 
+							<FormControl
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'row',
+								}}
+							>
+								<TextField
+									{...register('description')}
+									fullWidth
+									id="outlined-basic"
+									label="Descrição"
+									disabled={serviceState.description.disabled}
+									variant="outlined"
+									error={!!errors?.description}
+								/>
+								{!!errors?.description && (
+									<FormHelperText
+										sx={{ color: 'red', width: '20rem' }}
+									>
+										{errors?.description?.message}
+									</FormHelperText>
+								)}
 								<Tooltip
 									title="Editar este campo"
 									sx={{ marginLeft: '10px' }}
@@ -226,61 +258,21 @@ export const UpdateOneServicePage = () => {
 										<EditIcon />
 									</IconButton>
 								</Tooltip>
-							</Box>
-
-							<Box sx={{ display: 'flex', alignItems: 'center' }}>
-								<TextField
-									id="outlined-basic"
-									label={`Preço: ${Number(
-										service[0].price
-									).toLocaleString('pt-BR', {
-										style: 'currency',
-										currency: 'BRL',
-									})}`}
-									variant="outlined"
-									disabled={isDisabledPrice}
-									error={isInvalidPrice ? true : false}
-									helperText={
-										isInvalidPrice
-											? warningPriceMessage
-											: ''
-									}
-									InputProps={{
-										startAdornment: (
-											<InputAdornment position="start">
-												R$
-											</InputAdornment>
-										),
-									}}
-									onChange={handleChangePrice}
-								/>
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
-								>
-									<IconButton onClick={handleDisablePrice}>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</Box>
+							</FormControl>
 						</Stack>
 					</Paper>
 
 					<FooterSubmits
 						backTo={`/servicos/${id}`}
-						isDisabled={
-							isDisabledName &&
-							isDisabledPrice &&
-							isDisabledDescription
-						}
+						isDisabled={isDisabled}
 						isLoading={isLoading}
-						onClick={handleValidate}
+						onClick={handleSubmit(onSubmit)}
 						text="Alterar o cadastro"
 					/>
 
 					{showModal && (
 						<ModalSucess
-							handleClose={handleClose}
+							handleClose={handleCloseModal}
 							text="O serviço foi atualizado com êxito!"
 						/>
 					)}

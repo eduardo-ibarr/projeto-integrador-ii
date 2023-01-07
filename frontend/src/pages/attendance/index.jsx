@@ -14,40 +14,43 @@ import {
 	Stack,
 	TextField,
 	ThemeProvider,
+	Typography,
 } from '@mui/material';
+
+import { Controller, useForm } from 'react-hook-form';
 
 import { theme } from '../../theme/theme';
 
 import { SideMenu } from '../../components/SideMenu/index';
 import { ModalSucess } from '../../components/ModalSucess/index';
-
 import { FooterSubmits } from '../../components/FooterSubmits';
 import { HeaderText } from '../../components/HeaderText';
-import { useListClients } from '../../hooks/clients/useListClients';
-import { useListServices } from '../../hooks/services/useListServices';
-import { Controller, useForm } from 'react-hook-form';
-import { useCreateAttendance } from '../../hooks/attendance/useCreateAttendance';
-import { useUpdateClient } from '../../hooks/clients/useUpdateClient';
+import { LoadingPage } from '../../components/LoadingPage';
+
+import { useListActiveClients, useUpdateClient } from '../../hooks/clients';
+import { useListActiveServices } from '../../hooks/services';
+import { useCreateAttendance } from '../../hooks/attendance';
 
 export const AttendancePage = () => {
-	const { data: clients, isLoading: isLoadingClients } = useListClients();
-	const { data: services, isLoading: isLoadingServices } = useListServices();
+	const { data: clients, isLoading: isLoadingClients } =
+		useListActiveClients();
+	const { data: services, isLoading: isLoadingServices } =
+		useListActiveServices();
 
-	const { mutateAsync: updateService } = useUpdateClient();
+	const { mutateAsync: updateClient } = useUpdateClient();
 	const { mutateAsync: createAttendance } = useCreateAttendance();
 
-	const { register, handleSubmit, control } = useForm();
-
-	console.log('RENDER');
+	const {
+		register,
+		handleSubmit,
+		control,
+		formState: { errors },
+	} = useForm();
 
 	const [showModal, setShowModal] = useState(false);
 
-	if (isLoadingClients) {
-		return <h3>Carregando...</h3>;
-	}
-
-	if (isLoadingServices) {
-		return <h3>Carregando...</h3>;
+	if (isLoadingClients || isLoadingServices) {
+		return <LoadingPage />;
 	}
 
 	const clientsNames = clients.map((client) => client.name);
@@ -56,9 +59,9 @@ export const AttendancePage = () => {
 	const sendRequests = async ({ attendance, clientSelected }) => {
 		try {
 			await createAttendance(attendance);
-			await updateService({
+			await updateClient({
+				value: clientSelected,
 				id: clientSelected._id,
-				data: clientSelected,
 			});
 		} catch (error) {
 			console.error(error);
@@ -86,7 +89,7 @@ export const AttendancePage = () => {
 		clientSelected.services.push(attendance._id);
 	};
 
-	const findOn = (data) => {
+	const findSelectedValuesOn = (data) => {
 		const clientSelected = clients.find(
 			(client) => client.name === data.client
 		);
@@ -102,7 +105,7 @@ export const AttendancePage = () => {
 	};
 
 	const onSubmit = async (data) => {
-		const { clientSelected, serviceSelected } = findOn(data);
+		const { clientSelected, serviceSelected } = findSelectedValuesOn(data);
 
 		const attendance = generateAttendance({
 			clientSelected,
@@ -119,16 +122,8 @@ export const AttendancePage = () => {
 
 	const handleClose = () => {
 		setShowModal(false);
-		window.location.reload();
 	};
 
-	if (isLoadingClients) {
-		return <h3>Carregando...</h3>;
-	}
-
-	if (isLoadingServices) {
-		return <h3>Carregando...</h3>;
-	}
 	return (
 		<ThemeProvider theme={theme}>
 			<Grid container spacing={2}>
@@ -151,7 +146,13 @@ export const AttendancePage = () => {
 
 					<Paper sx={{ padding: '20px', marginTop: '20px' }}>
 						<Stack spacing={2}>
-							<Box>
+							<Box
+								sx={{
+									display: 'flex',
+									flexDirection: 'column',
+									width: '60%',
+								}}
+							>
 								<FormControl>
 									<Autocomplete
 										disablePortal
@@ -159,12 +160,24 @@ export const AttendancePage = () => {
 										renderInput={(params) => (
 											<TextField
 												{...params}
-												{...register('client')}
-												label="Escolha um cliente"
+												{...register('client', {
+													required: true,
+												})}
+												error={!!errors.client}
+												label="Selecione um cliente"
 											/>
 										)}
 									/>
-									<FormHelperText></FormHelperText>
+									{!!errors.client && (
+										<FormHelperText
+											sx={{
+												marginTop: '0.5rem',
+												color: 'red',
+											}}
+										>
+											O campo é obrigatório.
+										</FormHelperText>
+									)}
 								</FormControl>
 
 								<FormControl>
@@ -172,50 +185,91 @@ export const AttendancePage = () => {
 										{...register('service')}
 										disablePortal
 										options={servicesNames}
-										sx={{ margin: '20px 0 10px 0' }}
+										sx={{ marginTop: '1rem' }}
 										renderInput={(params) => (
 											<TextField
 												{...params}
-												{...register('service')}
-												label="Escolha um serviço"
+												{...register('service', {
+													required: true,
+												})}
+												error={!!errors.service}
+												label="Selecione um serviço"
 											/>
 										)}
 									/>
-									<FormHelperText></FormHelperText>
+									{!!errors.service && (
+										<FormHelperText
+											sx={{
+												marginTop: '0.5rem',
+												color: 'red',
+											}}
+										>
+											O campo é obrigatório.
+										</FormHelperText>
+									)}
 								</FormControl>
 							</Box>
-							<Box>
-								<FormControl>
+
+							<Typography>
+								Selecione uma data e um horário para o
+								atendimento
+							</Typography>
+
+							<Box sx={{ display: 'flex' }}>
+								<FormControl
+									sx={{ width: '20%', marginRight: '2rem' }}
+								>
 									<Controller
 										render={(props) => (
 											<TextField
 												{...props}
-												{...register('date')}
+												{...register('date', {
+													required: true,
+												})}
+												error={!!errors.date}
 												type="date"
 											/>
 										)}
 										name="date"
 										control={control}
-										defaultValue={new Date()}
 									></Controller>
-									<FormHelperText></FormHelperText>
+									{!!errors.date && (
+										<FormHelperText
+											sx={{
+												marginTop: '0.5rem',
+												color: 'red',
+											}}
+										>
+											O campo é obrigatório.
+										</FormHelperText>
+									)}
 								</FormControl>
-							</Box>
-							<Box>
-								<FormControl>
+
+								<FormControl sx={{ width: '15%' }}>
 									<Controller
 										render={(props) => (
 											<TextField
 												{...props}
-												{...register('time')}
+												{...register('time', {
+													required: true,
+												})}
+												error={!!errors.time}
 												type="time"
 											/>
 										)}
 										name="time"
 										control={control}
-										defaultValue={new Date()}
 									></Controller>
-									<FormHelperText></FormHelperText>
+									{!!errors.time && (
+										<FormHelperText
+											sx={{
+												marginTop: '0.5rem',
+												color: 'red',
+											}}
+										>
+											O campo é obrigatório.
+										</FormHelperText>
+									)}
 								</FormControl>
 							</Box>
 						</Stack>

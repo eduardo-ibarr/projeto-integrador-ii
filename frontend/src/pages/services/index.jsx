@@ -1,10 +1,9 @@
 /* eslint-disable indent */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
 import {
-	Box,
 	Typography,
 	Table,
 	TextField,
@@ -20,123 +19,36 @@ import {
 	Grid,
 } from '@mui/material';
 
-import { ThemeProvider, useTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
 
 import { SideMenu } from '../../components/SideMenu';
 import { AlertDelete } from '../../components/AlertDelete';
+import { TablePaginationActions } from '../../components/TablePaginationActions';
+import { FooterButtons } from '../../components/FooterButtons';
+import { LoadingPage } from '../../components/LoadingPage';
 
-import { chooseApi } from '../../api/chooseApi';
 import { theme } from '../../theme/theme';
 
-import { useAppContext } from '../../contexts/AppContext';
-import { CLOUD, LOCALHOST } from '../../constants/fetchURLs';
-import { FooterButtons } from '../../components/FooterButtons';
-
-const TablePaginationActions = (props) => {
-	const theme = useTheme();
-	const { count, page, rowsPerPage, onPageChange } = props;
-
-	const handleFirstPageButtonClick = (event) => {
-		onPageChange(event, 0);
-	};
-
-	const handleBackButtonClick = (event) => {
-		onPageChange(event, page - 1);
-	};
-
-	const handleNextButtonClick = (event) => {
-		onPageChange(event, page + 1);
-	};
-
-	const handleLastPageButtonClick = (event) => {
-		onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-	};
-
-	return (
-		<Box sx={{ flexShrink: 0, ml: 2.5 }}>
-			<IconButton
-				onClick={handleFirstPageButtonClick}
-				disabled={page === 0}
-			>
-				{theme.direction === 'rtl' ? (
-					<LastPageIcon />
-				) : (
-					<FirstPageIcon />
-				)}
-			</IconButton>
-			<IconButton onClick={handleBackButtonClick} disabled={page === 0}>
-				{theme.direction === 'rtl' ? (
-					<KeyboardArrowRight />
-				) : (
-					<KeyboardArrowLeft />
-				)}
-			</IconButton>
-			<IconButton
-				onClick={handleNextButtonClick}
-				disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-			>
-				{theme.direction === 'rtl' ? (
-					<KeyboardArrowLeft />
-				) : (
-					<KeyboardArrowRight />
-				)}
-			</IconButton>
-			<IconButton
-				onClick={handleLastPageButtonClick}
-				disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-			>
-				{theme.direction === 'rtl' ? (
-					<FirstPageIcon />
-				) : (
-					<LastPageIcon />
-				)}
-			</IconButton>
-		</Box>
-	);
-};
+import {
+	useListActiveServices,
+	useInactivateService,
+} from '../../hooks/services';
 
 export const ServicePage = () => {
-	const { isLocalHost } = useAppContext();
-
-	const [services, setServices] = useState([]);
+	const { data: services, isLoading } = useListActiveServices();
+	const { mutateAsync: inactivateService } = useInactivateService();
 
 	const [servicesToSearch, setServicesToSearch] = useState('');
 
 	const [showModal, setShowModal] = useState(false);
 
-	const [canDelete, setCanDelete] = useState(false);
-	const [IDToDelete, setIDToDelete] = useState(0);
+	const [serviceToInactivate, setServiceToInactivate] = useState();
 
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(5);
-
-	const filteredServices = services.filter((services) => {
-		return services.name
-			.toLowerCase()
-			.includes(servicesToSearch.toLowerCase());
-	});
-
-	const handleGetServices = async () => {
-		const servicesResponse = await fetch(
-			isLocalHost ? LOCALHOST.SERVICES : CLOUD.SERVICES
-		);
-		const servicesJSON = await servicesResponse.json();
-
-		const activeServices = servicesJSON.filter((service) => {
-			if (service.isActive) {
-				return service;
-			}
-		});
-
-		setServices(activeServices);
-	};
 
 	const emptyRows =
 		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services.length) : 0;
@@ -154,35 +66,27 @@ export const ServicePage = () => {
 		setPage(0);
 	};
 
-	const handleShowModal = (id) => {
-		setShowModal(true);
-		setIDToDelete(id);
-	};
-
 	const handleCloseModal = () => {
 		setShowModal(false);
 	};
 
-	const handleDelete = async (id) => {
-		const response = await chooseApi(isLocalHost).put(`servicos/${id}`, {
-			isActive: false,
-		});
-
-		setServices(response);
-		setCanDelete(false);
-
-		window.location.reload();
+	const handleInactivateService = async () => {
+		try {
+			await inactivateService(serviceToInactivate);
+		} catch (error) {
+			throw new Error(error);
+		}
 	};
 
-	useEffect(() => {
-		if (canDelete) {
-			handleDelete(IDToDelete);
-		}
-	}, [canDelete, IDToDelete]);
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
-	useEffect(() => {
-		handleGetServices();
-	}, []);
+	const filteredServices = services.filter((service) => {
+		return service.name
+			.toLowerCase()
+			.includes(servicesToSearch.toLowerCase());
+	});
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -308,11 +212,12 @@ export const ServicePage = () => {
 												sx={{ color: 'primary.red' }}
 											>
 												<IconButton
-													onClick={() =>
-														handleShowModal(
+													onClick={() => {
+														setServiceToInactivate(
 															service._id
-														)
-													}
+														);
+														setShowModal(true);
+													}}
 												>
 													<DeleteIcon />
 												</IconButton>
@@ -378,7 +283,7 @@ export const ServicePage = () => {
 					{showModal && (
 						<AlertDelete
 							handleCloseModal={handleCloseModal}
-							setCanDelete={setCanDelete}
+							handleDelete={handleInactivateService}
 							showModal={showModal}
 							text="serviço"
 						/>

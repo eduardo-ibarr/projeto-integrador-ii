@@ -3,10 +3,10 @@ const router = require('express').Router();
 
 const UserController = require('../api/controllers/client_controller');
 
-router.get('/clientes', /*auth, */UserController.read);
-router.get('/clientes/:id', /*auth, */UserController.readOne);
-router.post('/novo_cliente', /*auth, */UserController.create);
-router.put('/clientes/:id', /*auth, */UserController.update);
-router.delete('/clientes/:id', /*auth, */UserController.delete);
+router.get('/clients', /*auth, */UserController.read);
+router.get('/clients/:id', /*auth, */UserController.readOne);
+router.post('/clients', /*auth, */UserController.create);
+router.patch('/clients/:id', /*auth, */UserController.update);
+router.delete('/clients/:id', /*auth, */UserController.delete);
 
 module.exports = router;

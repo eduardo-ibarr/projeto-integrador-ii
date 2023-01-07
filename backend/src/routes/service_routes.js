@@ -3,10 +3,10 @@ const router = require('express').Router();
 
 const ServiceController = require('../api/controllers/service_controller');
 
-router.get('/servicos', /*auth, */ServiceController.read);
-router.get('/servicos/:id', /*auth, */ServiceController.readOne);
-router.post('/novo_servico', /*auth, */ServiceController.create);
-router.put('/servicos/:id', /*auth, */ServiceController.update);
-router.delete('/servicos/:id', /*auth, */ServiceController.delete);
+router.get('/services', /*auth, */ServiceController.read);
+router.get('/services/:id', /*auth, */ServiceController.readOne);
+router.post('/services', /*auth, */ServiceController.create);
+router.patch('/services/:id', /*auth, */ServiceController.update);
+router.delete('/services/:id', /*auth, */ServiceController.delete);
 
 module.exports = router;

@@ -17,7 +17,7 @@ const style = {
 export const ModalSucess = ({ handleClose, text }) => {
 	return (
 		<Modal
-			open={open}
+			open={true}
 			onClose={handleClose}
 			aria-labelledby="modal-modal-title"
 			aria-describedby="modal-modal-description"

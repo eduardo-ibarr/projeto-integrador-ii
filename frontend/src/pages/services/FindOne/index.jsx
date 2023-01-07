@@ -1,36 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 
 import { Grid, Paper, Stack, ThemeProvider, Typography } from '@mui/material';
 
 import { HeaderText } from '../../../components/HeaderText';
-
 import { SideMenu } from '../../../components/SideMenu';
+import { LoadingPage } from '../../../components/LoadingPage';
+import { FooterButtons } from '../../../components/FooterButtons';
+
 import { theme } from '../../../theme/theme';
 
-import { useAppContext } from '../../../contexts/AppContext';
-import { CLOUD, LOCALHOST } from '../../../constants/fetchURLs';
-import { FooterButtons } from '../../../components/FooterButtons';
+import { useShowService } from '../../../hooks/services';
 
 export const FindOneServicePage = () => {
 	const { id } = useParams();
-	const { isLocalHost } = useAppContext();
 
-	const [service, setService] = useState([0]);
+	const { data: service, isLoading } = useShowService(id);
 
-	const handleGetService = async () => {
-		const servicesResponse = await fetch(
-			isLocalHost ? LOCALHOST.SERVICES + id : CLOUD.SERVICES + id
-		);
-		const servicesJSON = await servicesResponse.json();
+	console.log(service);
 
-		setService(servicesJSON);
-	};
-
-	useEffect(() => {
-		handleGetService();
-	}, []);
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
 	return (
 		<ThemeProvider theme={theme}>

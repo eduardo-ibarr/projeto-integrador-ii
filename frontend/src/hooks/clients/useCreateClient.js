@@ -1,7 +1,16 @@
 import { useMutation } from 'react-query';
 
 import { clientsService } from '../../services/api';
+import { useInvalidateClients } from './useInvalidateClients';
 
 export function useCreateClient() {
-	return useMutation('createNewClient', clientsService.createNewClient);
+	const invalidateClients = useInvalidateClients();
+
+	return useMutation(
+		'createNewClient',
+		(values) => clientsService.createNewClient(values),
+		{
+			onSuccess: invalidateClients,
+		}
+	);
 }

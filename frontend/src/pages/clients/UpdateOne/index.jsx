@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import {
-	Box,
+	FormControl,
+	FormHelperText,
 	Grid,
 	IconButton,
 	Paper,
@@ -14,59 +15,56 @@ import {
 
 import EditIcon from '@mui/icons-material/Edit';
 
-import { validateName } from '../utils/validateName';
-import { validatePhoneNumber } from '../utils/validatePhoneNumber';
-import { validateCPF } from '../utils/validateCPF';
-import { validateRG } from '../utils/validateRG';
-import { validateAddress } from '../utils/validateAddress';
+import { useForm } from 'react-hook-form';
+
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import { ModalSucess } from '../../../components/ModalSucess';
 import { SideMenu } from '../../../components/SideMenu';
 
-import { chooseApi } from '../../../api/chooseApi';
 import { theme } from '../../../theme/theme';
 
-import { useAppContext } from '../../../contexts/AppContext';
-import { CLOUD, LOCALHOST } from '../../../constants/fetchURLs';
 import { FooterSubmits } from '../../../components/FooterSubmits';
 import { HeaderText } from '../../../components/HeaderText';
+import { LoadingPage } from '../../../components/LoadingPage';
 
-import clientReducer from './reducers/clientReducer';
+import { clientReducer } from './state/clientReducer';
 import { clientInitialState } from './state/clientInitialState';
+
+import { useShowClient, useUpdateClient } from '../../../hooks/clients';
+
+const warningMessage = 'Preencha corretamente este campo';
+
+let schema = yup.object().shape({
+	name: yup.string().required(warningMessage),
+	phoneNumber: yup.number().required(warningMessage),
+	rg: yup.string().required(warningMessage),
+	cpf: yup.string().required(warningMessage),
+	address: yup.string().required(warningMessage),
+});
 
 export const UpdateOneClientPage = () => {
 	const { id } = useParams();
-	const { isLocalHost } = useAppContext();
 
-	const [client, setClient] = useState([0]);
+	const { data: client, isLoading: isLoadingClient } = useShowClient(id);
 
-	const [isLoading, setIsLoading] = useState(false);
+	const { mutateAsync: updateClient } = useUpdateClient();
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		clearErrors,
+		reset,
+	} = useForm({
+		resolver: yupResolver(schema),
+	});
 
 	const [clientState, dispatchClient] = useReducer(
 		clientReducer,
 		clientInitialState
 	);
-
-	const clientData = useMemo(() => {
-		const { name, phoneNumber, cpf, rg, address } = clientState;
-		const {
-			nameDefault,
-			phoneNumberDefault,
-			cpfDefault,
-			rgDefault,
-			addressDefault,
-		} = client[0];
-
-		return {
-			name: name.disabled ? nameDefault : name.value,
-			phoneNumber: phoneNumber.disabled
-				? phoneNumberDefault
-				: phoneNumber.value,
-			cpf: cpf.disabled ? cpfDefault : cpf.value,
-			rg: rg.disabled ? rgDefault : rg.value,
-			address: address.disabled ? addressDefault : address.value,
-		};
-	}, [clientState, client]);
 
 	const isDisabled = useMemo(
 		() =>
@@ -80,156 +78,89 @@ export const UpdateOneClientPage = () => {
 
 	const [showModal, setShowModal] = useState(false);
 
-	const warningMessage = 'Preencha corretamente este campo';
-
-	const handleGetClient = async () => {
-		const clientsResponse = await fetch(
-			isLocalHost ? LOCALHOST.CLIENTS + id : CLOUD.CLIENTS + id
-		);
-		const clientsJSON = await clientsResponse.json();
-
-		setClient(clientsJSON);
-	};
-
-	const handleCloseModal = () => {
-		setShowModal(false);
-		window.location.reload();
-	};
-
-	const handleValidate = () => {
-		let isAllValid = true;
-
-		if (validateName(clientState.name.value) === false) {
-			dispatchClient({ type: 'SET_NAME', invalid: true });
-			isAllValid = false;
-		}
-
-		if (validatePhoneNumber(clientState.phoneNumber.value) === false) {
-			dispatchClient({
-				type: 'SET_PHONE_NUMBER',
-				invalid: true,
-			});
-			isAllValid = false;
-		}
-		if (validateCPF(clientState.cpf.value) === false) {
-			dispatchClient({ type: 'SET_CPF', invalid: true });
-			isAllValid = false;
-		}
-		if (validateRG(clientState.rg.value) === false) {
-			dispatchClient({ type: 'SET_RG', invalid: true });
-			isAllValid = false;
-		}
-
-		if (validateAddress(clientState.address.value) === false) {
-			dispatchClient({ type: 'SET_ADDRESS', invalid: true });
-			isAllValid = false;
-		}
-
-		if (isAllValid) {
-			handleSubmit();
-		}
-	};
-
-	const handleChangeName = (event) => {
-		dispatchClient({
-			type: 'SET_NAME',
-			invalid: false,
-			value: event.target.value,
-		});
-	};
-
-	const handleChangePhoneNumber = (event) => {
-		dispatchClient({
-			type: 'SET_PHONE_NUMBER',
-			invalid: false,
-			value: event.target.value,
-		});
-	};
-
-	const handleChangeCPF = (event) => {
-		dispatchClient({
-			type: 'SET_CPF',
-			invalid: false,
-			value: event.target.value,
-		});
-	};
-
-	const handleChangeRG = (event) => {
-		dispatchClient({
-			type: 'SET_RG',
-			invalid: false,
-			value: event.target.value,
-		});
-	};
-
-	const handleChangeAddress = (event) => {
-		dispatchClient({
-			type: 'SET_ADDRESS',
-			invalid: false,
-			value: event.target.value,
-		});
-
-		console.log(clientData);
-	};
-
 	const handleDisableName = () => {
 		dispatchClient({
-			type: 'SET_NAME',
+			type: 'DISABLE_NAME',
 			disabled: !clientState.name.disabled,
 		});
 	};
 
 	const handleDisablePhoneNumber = () => {
 		dispatchClient({
-			type: 'SET_PHONE_NUMBER',
+			type: 'DISABLE_PHONE_NUMBER',
 			disabled: !clientState.phoneNumber.disabled,
 		});
 	};
 
 	const handleDisableCPF = () => {
 		dispatchClient({
-			type: 'SET_CPF',
+			type: 'DISABLE_CPF',
 			disabled: !clientState.cpf.disabled,
 		});
 	};
 
 	const handleDisableRG = () => {
 		dispatchClient({
-			type: 'SET_RG',
+			type: 'DISABLE_RG',
 			disabled: !clientState.rg.disabled,
 		});
 	};
 
 	const handleDisableAddress = () => {
 		dispatchClient({
-			type: 'SET_ADDRESS',
+			type: 'DISABLE_ADDRESS',
 			disabled: !clientState.address.disabled,
 		});
 	};
 
-	const handleSubmit = async () => {
-		setIsLoading(true);
+	const generateClient = (data) => {
+		const { name, phoneNumber, rg, cpf, address } = data;
 
-		const client = {
-			...clientData,
+		return {
+			name,
+			phoneNumber,
+			rg,
+			cpf,
+			address,
 			updatedAt: new Date(),
 		};
+	};
 
-		await chooseApi(isLocalHost)
-			.put(`clientes/${id}`, client)
-			.then(() => {
-				setIsLoading(false);
-			})
-			.catch((err) => {
-				console.error('ops! ocorreu um erro --> ' + err);
-			});
+	const onSubmit = async (data) => {
+		clearErrors();
 
-		setShowModal(true);
+		try {
+			const client = generateClient(data);
+
+			await updateClient({ id, data: client });
+
+			setShowModal(true);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const handleCloseModal = () => {
+		setShowModal(false);
 	};
 
 	useEffect(() => {
-		handleGetClient();
-	}, []);
+		if (!isLoadingClient) {
+			const { name, phoneNumber, rg, cpf, address } = client[0];
+
+			reset({
+				name,
+				phoneNumber,
+				rg,
+				cpf,
+				address,
+			});
+		}
+	}, [client]);
+
+	if (isLoadingClient) {
+		return <LoadingPage />;
+	}
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -251,23 +182,29 @@ export const UpdateOneClientPage = () => {
 
 					<Paper sx={{ padding: '20px', marginTop: '20px' }}>
 						<Stack spacing={2}>
-							<Box sx={{ display: 'flex', alignItems: 'center' }}>
+							<FormControl
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'row',
+								}}
+							>
 								<TextField
+									{...register('name')}
 									fullWidth
 									id="outlined-basic"
-									label={`Nome completo: ${client[0].name}`}
-									variant="outlined"
+									label="Nome completo"
 									disabled={clientState.name.disabled}
-									error={
-										clientState.name.invalid ? true : false
-									}
-									helperText={
-										clientState.name.invalid
-											? warningMessage
-											: ''
-									}
-									onChange={handleChangeName}
+									variant="outlined"
+									error={!!errors?.name}
 								/>
+								{!!errors?.name && (
+									<FormHelperText
+										sx={{ color: 'red', width: '20rem' }}
+									>
+										{errors?.name?.message}
+									</FormHelperText>
+								)}
 								<Tooltip
 									title="Editar este campo"
 									sx={{ marginLeft: '10px' }}
@@ -276,28 +213,31 @@ export const UpdateOneClientPage = () => {
 										<EditIcon />
 									</IconButton>
 								</Tooltip>
-							</Box>
+							</FormControl>
 
-							<Box sx={{ display: 'flex', alignItems: 'center' }}>
+							<FormControl
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'row',
+								}}
+							>
 								<TextField
 									fullWidth
 									id="outlined-basic"
-									label={`Número de celular: ${client[0].phoneNumber}`}
+									label="Número de celular com DDD"
 									variant="outlined"
 									disabled={clientState.phoneNumber.disabled}
-									error={
-										clientState.phoneNumber.invalid
-											? true
-											: false
-									}
-									helperText={
-										clientState.phoneNumber.invalid
-											? warningMessage
-											: ''
-									}
-									onChange={handleChangePhoneNumber}
+									{...register('phoneNumber')}
+									error={!!errors?.phoneNumber}
 								/>
-
+								{errors?.phoneNumber?.type === 'typeError' && (
+									<FormHelperText
+										sx={{ color: 'red', width: '20rem' }}
+									>
+										Preencha apenas numeros.
+									</FormHelperText>
+								)}
 								<Tooltip
 									title="Editar este campo"
 									sx={{ marginLeft: '10px' }}
@@ -308,26 +248,31 @@ export const UpdateOneClientPage = () => {
 										<EditIcon />
 									</IconButton>
 								</Tooltip>
-							</Box>
+							</FormControl>
 
-							<Box sx={{ display: 'flex', alignItems: 'center' }}>
+							<FormControl
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'row',
+								}}
+							>
 								<TextField
 									fullWidth
 									id="outlined-basic"
-									label={`CPF: ${client[0].cpf}`}
-									variant="outlined"
+									label="CPF"
 									disabled={clientState.cpf.disabled}
-									error={
-										clientState.cpf.invalid ? true : false
-									}
-									helperText={
-										clientState.cpf.invalid
-											? warningMessage
-											: ''
-									}
-									onChange={handleChangeCPF}
+									variant="outlined"
+									{...register('cpf')}
+									error={!!errors?.cpf}
 								/>
-
+								{errors?.cpf && (
+									<FormHelperText
+										sx={{ color: 'red', width: '20rem' }}
+									>
+										{errors?.cpf?.message}
+									</FormHelperText>
+								)}
 								<Tooltip
 									title="Editar este campo"
 									sx={{ marginLeft: '10px' }}
@@ -336,25 +281,31 @@ export const UpdateOneClientPage = () => {
 										<EditIcon />
 									</IconButton>
 								</Tooltip>
-							</Box>
+							</FormControl>
 
-							<Box sx={{ display: 'flex', alignItems: 'center' }}>
+							<FormControl
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'row',
+								}}
+							>
 								<TextField
 									fullWidth
 									id="outlined-basic"
-									label={`RG: ${client[0].rg}`}
-									variant="outlined"
+									label="RG"
 									disabled={clientState.rg.disabled}
-									error={
-										clientState.rg.invalid ? true : false
-									}
-									helperText={
-										clientState.rg.invalid
-											? warningMessage
-											: ''
-									}
-									onChange={handleChangeRG}
+									variant="outlined"
+									{...register('rg')}
+									error={!!errors?.rg}
 								/>
+								{errors?.rg && (
+									<FormHelperText
+										sx={{ color: 'red', width: '20rem' }}
+									>
+										{errors?.rg?.message}
+									</FormHelperText>
+								)}
 								<Tooltip
 									title="Editar este campo"
 									sx={{ marginLeft: '10px' }}
@@ -363,27 +314,31 @@ export const UpdateOneClientPage = () => {
 										<EditIcon />
 									</IconButton>
 								</Tooltip>
-							</Box>
+							</FormControl>
 
-							<Box sx={{ display: 'flex', alignItems: 'center' }}>
+							<FormControl
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'row',
+								}}
+							>
 								<TextField
 									fullWidth
 									id="outlined-basic"
-									label={`Endereço: ${client[0].address}`}
-									variant="outlined"
+									label="Endereço"
 									disabled={clientState.address.disabled}
-									error={
-										clientState.address.invalid
-											? true
-											: false
-									}
-									helperText={
-										clientState.address.invalid
-											? warningMessage
-											: ''
-									}
-									onChange={handleChangeAddress}
+									variant="outlined"
+									{...register('address')}
+									error={!!errors?.address}
 								/>
+								{errors?.address && (
+									<FormHelperText
+										sx={{ color: 'red', width: '20rem' }}
+									>
+										{errors?.address?.message}
+									</FormHelperText>
+								)}
 								<Tooltip
 									title="Editar este campo"
 									sx={{ marginLeft: '10px' }}
@@ -392,15 +347,14 @@ export const UpdateOneClientPage = () => {
 										<EditIcon />
 									</IconButton>
 								</Tooltip>
-							</Box>
+							</FormControl>
 						</Stack>
 					</Paper>
 
 					<FooterSubmits
 						backTo={`/clientes/${id}`}
 						isDisabled={isDisabled}
-						isLoading={isLoading}
-						onClick={handleValidate}
+						onClick={handleSubmit(onSubmit)}
 						text="Alterar o cadastro"
 					/>
 

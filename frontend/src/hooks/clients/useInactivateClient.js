@@ -3,12 +3,12 @@ import { useMutation } from 'react-query';
 import { clientsService } from '../../services/api';
 import { useInvalidateClients } from './useInvalidateClients';
 
-export function useUpdateClient() {
+export function useInactivateClient() {
 	const invalidateClients = useInvalidateClients();
 
 	return useMutation(
-		'updateClient',
-		({ value, id }) => clientsService.updateClient({ value, id }),
+		'inactivateClient',
+		(id) => clientsService.inactivateClient(id),
 		{
 			onSuccess: invalidateClients,
 		}
