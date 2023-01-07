@@ -1,226 +1,152 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useReducer, useState } from 'react';
 import moment from 'moment';
 
 import {
 	Box,
+	Button,
 	Card,
 	CardActions,
 	CardContent,
+	CircularProgress,
+	FormControl,
+	FormControlLabel,
+	FormHelperText,
+	FormLabel,
 	Grid,
 	IconButton,
+	InputAdornment,
+	Modal,
 	Paper,
+	Radio,
+	RadioGroup,
 	TextField,
 	ThemeProvider,
 	Tooltip,
 	Typography,
 } from '@mui/material';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DesktopDatePicker } from '@mui/x-date-pickers';
-
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { SideMenu } from '../../components/SideMenu';
-import { AlertDelete } from '../../components/AlertDelete';
+
+import { Controller, useForm } from 'react-hook-form';
 
 import { theme } from '../../theme/theme';
-import { chooseApi } from '../../api/chooseApi';
-
-import { validatePrice } from '../services/utils/validatePrice';
 
 import './styles.css';
 
-import { CLOUD, LOCALHOST } from '../../constants/fetchURLs';
+import { useListAttendances } from '../../hooks/attendance/useListAttendances';
+import { useListClients } from '../../hooks/clients/useListClients';
 
-import { useAppContext } from '../../contexts/AppContext';
-import { ModalFinish } from './components/ModalFinish';
+import { modalStyle } from '../../theme/modalStyle';
+import { useInactivateAttendance } from '../../hooks/attendance/useInactivateAttendance';
+import { AlertDelete } from '../../components/AlertDelete';
+import { useUpdateAttendance } from '../../hooks/attendance/useUpdateAttendance';
+import { attendanceReducer } from './state/attendanceReducer';
+import { attendanceInitialState } from './state/attendanceInitialState';
 
 export const Home = () => {
-	const { isLocalHost } = useAppContext();
+	const { data: attendances, isLoading: isLoadingAttendances } =
+		useListAttendances();
 
-	const [attendances, setAttendances] = useState([]);
-	const [attendancesReturned, setAttendancesReturned] = useState([]);
+	const { data: clients, isLoading: isLoadingClients } = useListClients();
 
-	const [clients, setClients] = useState([]);
-	const [showValues, setShowValues] = useState(false);
+	const { mutateAsync: inactivateAttendance } = useInactivateAttendance();
 
-	const [isDone, setIsDone] = useState(false);
-	const [isPaid, setIsPaid] = useState(false);
-	const [totalPaid, setTotalPaid] = useState(0);
+	const { mutateAsync: updateAttendance, isLoading: isLoadingUpdate } =
+		useUpdateAttendance();
 
-	const [date, setDate] = useState(new Date());
+	const {
+		handleSubmit,
+		register,
+		control,
+		watch,
+		formState: { errors },
+	} = useForm({
+		defaultValues: {
+			isDone: false,
+			isPaid: false,
+			totalPaid: 0,
+		},
+	});
 
-	const [isInvalidPrice, setIsInvalidPrice] = useState(false);
+	const { isDone, isPaid } = watch();
 
-	const [isOpenModalFinish, setIsOpenModalFinish] = useState(false);
-	const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
+	const [day, setDay] = useState();
 
-	const [canDelete, setCanDelete] = useState(false);
+	const [attendanceState, dispatchAttendance] = useReducer(
+		attendanceReducer,
+		attendanceInitialState
+	);
 
-	const [idCurrentAttendance, setidCurrentAttendance] = useState('');
+	const attendancesForTheDay = useMemo(() => {
+		if (!isLoadingAttendances && !isLoadingClients) {
+			const results = [];
 
-	const [isLoadingButton, setIsLoadingButton] = useState(false);
+			for (const attendance of attendances) {
+				const isSameDate =
+					moment(attendance.date).format('DD/MM/yyyy') ===
+					moment(day).format('DD/MM/yyyy');
 
-	const handleGetAttendances = async () => {
-		const attendancesResponse = await fetch(
-			isLocalHost ? LOCALHOST.ATTENDANCES : CLOUD.ATTENDANCES
-		);
-		const attendancesJSON = await attendancesResponse.json();
-
-		setAttendancesReturned(attendancesJSON);
-	};
-
-	const handleShowAttendances = () => {
-		const attendancesForToday = [];
-
-		for (let i = 0; i < attendancesReturned.length; i++) {
-			const attendance = attendancesReturned[i];
-
-			const attendanceDate = new Date(attendance.date);
-
-			const dateParsed =
-				date.getDate() +
-				'/' +
-				date.getMonth() +
-				'/' +
-				date.getFullYear();
-			const attendanceDateParsed =
-				attendanceDate.getDate() +
-				'/' +
-				attendanceDate.getMonth() +
-				'/' +
-				attendanceDate.getFullYear();
-
-			if (dateParsed === attendanceDateParsed && attendance.isActive) {
-				attendancesForToday.push(attendance);
+				if (isSameDate) {
+					results.push(attendance);
+				}
 			}
+
+			return results;
 		}
 
-		setAttendances(attendancesForToday);
+		return;
+	}, [day, isLoadingAttendances, isLoadingClients]);
+
+	if (isLoadingAttendances) {
+		return <h3>carregando...</h3>;
+	}
+
+	if (isLoadingClients) {
+		return <h3>carregando...</h3>;
+	}
+
+	const handleCloseFinishModal = () => {
+		dispatchAttendance({ type: 'SET_CLOSE_FINISH_MODAL', value: false });
 	};
 
-	const handleGetClients = async () => {
-		const attendancesClients = [];
-
-		for (let i = 0; i < attendances.length; i++) {
-			const attendance = attendances[i];
-
-			const clientsResponse = await fetch(
-				isLocalHost
-					? LOCALHOST.CLIENTS + attendance.client
-					: CLOUD.CLIENTS + attendance.client
-			);
-
-			const clientsJSON = await clientsResponse.json();
-
-			if (clientsJSON[0].isActive) {
-				attendancesClients.push(clientsJSON[0]);
-			}
-		}
-
-		setClients(attendancesClients);
+	const handleCloseInactivateModal = () => {
+		dispatchAttendance({
+			type: 'SET_CLOSE_INACTIVATE_MODAL',
+			value: false,
+		});
 	};
 
-	const handleDeleteAttendance = async (attendance) => {
-		setIsLoadingButton(true);
+	const handleChangeDate = (event) => {
+		const input = moment(event.target.value);
+		setDay(input);
+	};
 
-		await chooseApi(isLocalHost)
-			.put(`atendimentos/${attendance}`, { isActive: false })
-			.then(() => {
-				setIsLoadingButton(false);
-				setCanDelete(false);
-				window.location.reload();
-			})
-			.catch((err) => {
-				console.error('ops! ocorreu um erro --> ' + err);
+	console.log('RENDER');
+
+	const onSubmit = async (data) => {
+		try {
+			const { isDone, isPaid, totalPaid } = data;
+
+			await updateAttendance({
+				id: attendanceState.id,
+				data: { isDone, isPaid, total: totalPaid },
 			});
-	};
-
-	const handleSetAttendance = async (Attendance) => {
-		if (validatePrice(totalPaid)) {
-			setIsInvalidPrice(false);
-			setIsLoadingButton(true);
-
-			await chooseApi(isLocalHost)
-				.put(`atendimentos/${Attendance}`, {
-					isDone,
-					isPaid,
-					totalPaid,
-				})
-				.then((response) => {
-					setIsLoadingButton(false);
-					window.location.reload();
-
-					return response.data;
-				})
-				.catch((err) => {
-					console.error('ops! ocorreu um erro -->' + err);
-				});
-		} else {
-			setIsInvalidPrice(true);
+		} catch (error) {
+			throw new Error(error);
 		}
 	};
 
-	const handleShowPayment = () => {
-		setIsDone(!isDone);
+	const handleInactivateAttendance = async () => {
+		try {
+			await inactivateAttendance(attendanceState.id);
+			window.location.reload();
+		} catch (error) {
+			throw new Error(error);
+		}
 	};
-
-	const handleShowValues = () => {
-		setShowValues(!showValues);
-	};
-
-	const handleChangeIsPaid = (e) => {
-		setIsPaid(e.target.value);
-		handleShowValues();
-	};
-
-	const handleChangeTotalPaid = (event) => {
-		setTotalPaid(event.target.value);
-		setIsInvalidPrice(false);
-	};
-
-	const handleChangeDate = (newValue) => {
-		setDate(new Date(newValue));
-	};
-
-	const handleChangeAttendance = (event) => {
-		setIsDone(event.target.value);
-		handleShowPayment(!isPaid);
-	};
-
-	const handleOpenModal = (attendance) => {
-		setIsOpenModalFinish(true);
-		setidCurrentAttendance(attendance._id);
-	};
-
-	const handleCloseModalFinish = () => {
-		setIsOpenModalFinish(false);
-
-		setShowValues(false);
-		setIsDone(false);
-	};
-
-	const handleCloseModalDelete = () => {
-		setIsOpenModalDelete(false);
-	};
-
-	useEffect(() => {
-		handleGetClients().catch((error) => console.error(error));
-	}, [attendances]);
-
-	useEffect(() => {
-		handleShowAttendances();
-	}, [attendancesReturned, date]);
-
-	useEffect(() => {
-		if (canDelete) handleDeleteAttendance(idCurrentAttendance);
-	}, [canDelete, idCurrentAttendance]);
-
-	useEffect(() => {
-		handleGetAttendances().catch((error) => console.error(error));
-	}, []);
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -235,7 +161,7 @@ export const Home = () => {
 							sx={{
 								marginBottom: '20px',
 								padding: '20px',
-								width: '500px',
+								width: '700px',
 								borderRadius: '5px',
 								display: 'flex',
 								alignItems: 'center',
@@ -243,28 +169,19 @@ export const Home = () => {
 							}}
 						>
 							<Typography variant="h6">
-								Atendimentos para
+								Atendimentos para hoje, ou selecione uma data:
 							</Typography>
 
 							<Box sx={{ marginLeft: '10px' }}>
-								<LocalizationProvider
-									dateAdapter={AdapterDayjs}
-									adapterLocale="fr"
-								>
-									<DesktopDatePicker
-										inputFormat="DD/MM/YYYY"
-										value={date}
-										onChange={handleChangeDate}
-										renderInput={(params) => (
-											<TextField {...params} />
-										)}
-									/>
-								</LocalizationProvider>
+								<TextField
+									onChange={handleChangeDate}
+									type="date"
+								/>
 							</Box>
 						</Paper>
 
 						<Grid container spacing={2}>
-							{attendances.map((attendance, i) => {
+							{attendancesForTheDay.map((attendance, i) => {
 								if (attendance.isDone === false) {
 									return (
 										<Grid item xs={3} key={i}>
@@ -317,11 +234,17 @@ export const Home = () => {
 													>
 														<IconButton
 															size="large"
-															onClick={() =>
-																handleOpenModal(
-																	attendance
-																)
-															}
+															onClick={() => {
+																dispatchAttendance(
+																	{
+																		type: 'SET_OPEN_FINISH_MODAL',
+																		values: {
+																			openFinishModal: true,
+																			id: attendance._id,
+																		},
+																	}
+																);
+															}}
 														>
 															<CheckCircleOutlineIcon fontSize="inherit" />
 														</IconButton>
@@ -334,14 +257,17 @@ export const Home = () => {
 													>
 														<IconButton
 															size="large"
-															onClick={() => {
-																setIsOpenModalDelete(
-																	true
-																);
-																setidCurrentAttendance(
-																	attendance._id
-																);
-															}}
+															onClick={() =>
+																dispatchAttendance(
+																	{
+																		type: 'SET_OPEN_INACTIVATE_MODAL',
+																		values: {
+																			openInactivateModal: true,
+																			id: attendance._id,
+																		},
+																	}
+																)
+															}
 														>
 															<DeleteIcon fontSize="inherit" />
 														</IconButton>
@@ -355,33 +281,159 @@ export const Home = () => {
 						</Grid>
 					</Box>
 				</Grid>
-
-				{isOpenModalFinish && (
-					<ModalFinish
-						onClickCancel={handleCloseModalFinish}
-						onClickSave={() =>
-							handleSetAttendance(idCurrentAttendance)
-						}
-						isDone={isDone}
-						isInvalidPrice={isInvalidPrice}
-						isLoading={isLoadingButton}
-						isOpen={isOpenModalFinish}
-						onChangeAttendance={handleChangeAttendance}
-						onChangeIsPaid={handleChangeIsPaid}
-						onChangeTotalPaid={handleChangeTotalPaid}
-						showValues={showValues}
-					/>
-				)}
-
-				{isOpenModalDelete && (
-					<AlertDelete
-						handleCloseModal={handleCloseModalDelete}
-						setCanDelete={setCanDelete}
-						text="atendimento"
-						showModal={isOpenModalDelete}
-					/>
-				)}
 			</Grid>
+
+			<Modal
+				open={attendanceState.openFinishModal}
+				aria-labelledby="modal-modal-title"
+				aria-describedby="modal-modal-description"
+			>
+				<Box sx={modalStyle}>
+					<Typography
+						id="modal-modal-title"
+						component={'span'}
+						variant="h6"
+					>
+						Finalizar atendimento
+					</Typography>
+
+					<Box
+						sx={{
+							display: 'flex',
+							flexDirection: 'column',
+							marginTop: '1rem',
+						}}
+					>
+						<FormControl>
+							<FormControl component="fieldset">
+								<FormLabel component="legend">
+									Status do atendimento
+								</FormLabel>
+								<Controller
+									rules={{ required: true }}
+									control={control}
+									name="isDone"
+									render={({ field }) => (
+										<RadioGroup {...field}>
+											<FormControlLabel
+												value="true"
+												control={<Radio />}
+												label="Finalizado"
+											/>
+											<FormControlLabel
+												value="false"
+												control={<Radio />}
+												label="Não finalizado"
+											/>
+										</RadioGroup>
+									)}
+								/>
+							</FormControl>
+							<FormControl>
+								<FormControl sx={{ marginTop: '1rem' }}>
+									{isDone === 'true' && (
+										<FormControl component="fieldset">
+											<FormLabel component="legend">
+												Status de pagamento
+											</FormLabel>
+											<Controller
+												rules={{
+													required: true,
+												}}
+												control={control}
+												name="isPaid"
+												render={({ field }) => (
+													<RadioGroup {...field}>
+														<FormControlLabel
+															value="true"
+															control={<Radio />}
+															label="Pago"
+														/>
+														<FormControlLabel
+															value="false"
+															control={<Radio />}
+															label="Não pago"
+														/>
+													</RadioGroup>
+												)}
+											/>
+										</FormControl>
+									)}
+
+									{isPaid === 'true' && (
+										<FormControl>
+											<TextField
+												fullWidth
+												id="outlined-basic"
+												label="Valor pago"
+												variant="outlined"
+												{...register('totalPaid', {
+													required: true,
+													validate: (value) =>
+														Number(value) > 0,
+												})}
+												sx={{ marginTop: '2rem' }}
+												error={!!errors.totalPaid}
+												InputProps={{
+													startAdornment: (
+														<InputAdornment position="start">
+															R$
+														</InputAdornment>
+													),
+												}}
+											/>
+											{!!errors?.totalPaid && (
+												<FormHelperText
+													sx={{ color: 'red' }}
+												>
+													Preencha com numeros maiores
+													que zero.
+												</FormHelperText>
+											)}
+										</FormControl>
+									)}
+								</FormControl>
+							</FormControl>
+						</FormControl>
+					</Box>
+
+					<Box
+						sx={{
+							display: 'flex',
+							justifyContent: 'right',
+							marginTop: '30px',
+						}}
+					>
+						<Button
+							variant="text"
+							sx={{ marginRight: '10px' }}
+							onClick={handleCloseFinishModal}
+						>
+							Cancelar
+						</Button>
+						{isLoadingUpdate ? (
+							<CircularProgress sx={{ color: 'primary.main' }} />
+						) : (
+							<Button
+								variant="text"
+								sx={{ marginRight: '10px' }}
+								onClick={handleSubmit(onSubmit)}
+							>
+								Salvar
+							</Button>
+						)}
+					</Box>
+				</Box>
+			</Modal>
+
+			{attendanceState.openInactivateModal && (
+				<AlertDelete
+					handleCloseModal={handleCloseInactivateModal}
+					handleDelete={handleInactivateAttendance}
+					showModal={attendanceState.openInactivateModal}
+					text="atendimento"
+				/>
+			)}
 		</ThemeProvider>
 	);
 };

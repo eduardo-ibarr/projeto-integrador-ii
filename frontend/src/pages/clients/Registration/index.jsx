@@ -112,7 +112,7 @@ export const ClientRegistrationPage = () => {
 									variant="outlined"
 									error={!!errors?.name}
 								/>
-								{errors?.name && (
+								{!!errors?.name && (
 									<FormHelperText sx={{ color: 'red' }}>
 										{errors?.name?.message}
 									</FormHelperText>

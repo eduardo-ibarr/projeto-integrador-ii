@@ -21,13 +21,15 @@ export const showAttendance = async (id) => {
 };
 
 export const updateAttendance = async ({ id, data }) => {
-	const response = await client.put(`/atendimentos/${id}`, data);
+	const response = await client.patch(`/atendimentos/${id}`, data);
 
 	return response.data;
 };
 
-export const inactivateAttendance = async (id, active) => {
-	const response = await client.patch(`/atendimentos/${id}`, active);
+export const inactivateAttendance = async (id) => {
+	const response = await client.patch(`/atendimentos/${id}`, {
+		isActive: false,
+	});
 
 	return response.data;
 };

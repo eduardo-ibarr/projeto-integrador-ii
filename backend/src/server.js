@@ -34,7 +34,7 @@ app.use(cors({
         
         return callback(null, true);
     },
-    methods: 'GET, PUT, POST, DELETE',
+    methods: 'GET, PUT, POST, DELETE, PATCH',
     preflightContinue: false,
     optionsSuccessStatus: 204
 }));

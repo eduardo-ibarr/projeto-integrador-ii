@@ -24,12 +24,8 @@ export const AlertDelete = ({
 	showModal,
 	handleCloseModal,
 	text,
-	setCanDelete,
+	handleDelete,
 }) => {
-	const handleCanDelete = () => {
-		setCanDelete(true);
-	};
-
 	return (
 		<ThemeProvider theme={theme}>
 			<Modal
@@ -74,7 +70,7 @@ export const AlertDelete = ({
 						<Button
 							variant="text"
 							sx={{ color: 'color.red' }}
-							onClick={handleCanDelete}
+							onClick={handleDelete}
 						>
 							Excluir
 						</Button>

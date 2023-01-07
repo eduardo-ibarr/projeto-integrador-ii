@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useState } from 'react';
 
 import { v4 } from 'uuid';
-import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 
 import {
@@ -17,10 +16,6 @@ import {
 	ThemeProvider,
 } from '@mui/material';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker, TimePicker } from '@mui/x-date-pickers';
-
 import { theme } from '../../theme/theme';
 
 import { SideMenu } from '../../components/SideMenu/index';
@@ -30,7 +25,7 @@ import { FooterSubmits } from '../../components/FooterSubmits';
 import { HeaderText } from '../../components/HeaderText';
 import { useListClients } from '../../hooks/clients/useListClients';
 import { useListServices } from '../../hooks/services/useListServices';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useCreateAttendance } from '../../hooks/attendance/useCreateAttendance';
 import { useUpdateClient } from '../../hooks/clients/useUpdateClient';
 
@@ -41,7 +36,9 @@ export const AttendancePage = () => {
 	const { mutateAsync: updateService } = useUpdateClient();
 	const { mutateAsync: createAttendance } = useCreateAttendance();
 
-	const { register, handleSubmit } = useForm();
+	const { register, handleSubmit, control } = useForm();
+
+	console.log('RENDER');
 
 	const [showModal, setShowModal] = useState(false);
 
@@ -56,36 +53,7 @@ export const AttendancePage = () => {
 	const clientsNames = clients.map((client) => client.name);
 	const servicesNames = services.map((service) => service.name);
 
-	// const isDisabled = useMemo(
-	// 	() =>
-	// 		client === null ||
-	// 		service === null ||
-	// 		dateValue === null,
-	// 	[clientsState, servicesState, dateValue]
-	// );
-
-	const onSubmit = async (data) => {
-		const clientSelected = clients.find(
-			(client) => client.name === data.client
-		);
-		const serviceSelected = services.find(
-			(service) => service.name === data.service
-		);
-
-		const attendance = {
-			_id: v4(),
-			client: clientSelected._id,
-			isActive: true,
-			date: new Date(data.day + ' ' + data.hours),
-			services: serviceSelected,
-			total: serviceSelected.price,
-			isPaid: false,
-			isDone: false,
-			createdAt: new Date(),
-		};
-
-		clientSelected.services.push(attendance._id);
-
+	const sendRequests = async ({ attendance, clientSelected }) => {
 		try {
 			await createAttendance(attendance);
 			await updateService({
@@ -95,8 +63,58 @@ export const AttendancePage = () => {
 		} catch (error) {
 			console.error(error);
 		}
+	};
 
-		// setShowModal(true);
+	const generateAttendance = ({ clientSelected, data, serviceSelected }) => {
+		return {
+			_id: v4(),
+			client: clientSelected._id,
+			isActive: true,
+			date: new Date(data.date + ' ' + data.time),
+			services: serviceSelected,
+			total: serviceSelected.price,
+			isPaid: false,
+			isDone: false,
+			createdAt: new Date(),
+		};
+	};
+
+	const updateClientSelectedWithAttendance = ({
+		clientSelected,
+		attendance,
+	}) => {
+		clientSelected.services.push(attendance._id);
+	};
+
+	const findOn = (data) => {
+		const clientSelected = clients.find(
+			(client) => client.name === data.client
+		);
+
+		const serviceSelected = services.find(
+			(service) => service.name === data.service
+		);
+
+		return {
+			clientSelected,
+			serviceSelected,
+		};
+	};
+
+	const onSubmit = async (data) => {
+		const { clientSelected, serviceSelected } = findOn(data);
+
+		const attendance = generateAttendance({
+			clientSelected,
+			data,
+			serviceSelected,
+		});
+
+		updateClientSelectedWithAttendance({ clientSelected, attendance });
+
+		await sendRequests({ attendance, clientSelected });
+
+		setShowModal(true);
 	};
 
 	const handleClose = () => {
@@ -166,43 +184,37 @@ export const AttendancePage = () => {
 									<FormHelperText></FormHelperText>
 								</FormControl>
 							</Box>
-
 							<Box>
 								<FormControl>
-									<LocalizationProvider
-										dateAdapter={AdapterDayjs}
-										adapterLocale="pt-br"
-									>
-										<DatePicker
-											label="Escolha uma data"
-											renderInput={(params) => (
-												<TextField
-													{...params}
-													{...register('day')}
-												/>
-											)}
-										/>
-									</LocalizationProvider>
+									<Controller
+										render={(props) => (
+											<TextField
+												{...props}
+												{...register('date')}
+												type="date"
+											/>
+										)}
+										name="date"
+										control={control}
+										defaultValue={new Date()}
+									></Controller>
 									<FormHelperText></FormHelperText>
 								</FormControl>
 							</Box>
-
 							<Box>
 								<FormControl>
-									<LocalizationProvider
-										dateAdapter={AdapterDayjs}
-										adapterLocale="pt-br"
-									>
-										<TimePicker
-											label="Escolha um horario"
-											renderInput={(params) => (
-												<TextField
-													{...params}
-													{...register('hours')}
-												/>
-											)}
-										/>
-									</LocalizationProvider>
+									<Controller
+										render={(props) => (
+											<TextField
+												{...props}
+												{...register('time')}
+												type="time"
+											/>
+										)}
+										name="time"
+										control={control}
+										defaultValue={new Date()}
+									></Controller>
 									<FormHelperText></FormHelperText>
 								</FormControl>
 							</Box>
@@ -211,7 +223,6 @@ export const AttendancePage = () => {
 
 					<FooterSubmits
 						backTo="/home"
-						isDisabled={false}
 						isLoading={false}
 						onClick={handleSubmit(onSubmit)}
 						text="Marcar atendimento"
