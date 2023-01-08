@@ -22,9 +22,9 @@ O projeto ainda está em desenvolvimento e as próximas atualizações serão vo
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 
-- Você instalou a versão mais recente de `Node.js`
+- Você instalou a versão mais recente do `Node.js`.
 
-## 🚀 Instalando projeto-integrador-ii
+## 🚀 Instalando o projeto-integrador-ii
 
 Para instalar o projeto-integrador-ii, siga estas etapas:
 
@@ -58,4 +58,4 @@ npm start
 
 Esse projeto está sob licença. Veja o arquivo [LICENÇA](LICENSE.md) para mais detalhes.
 
-[⬆ Voltar ao topo](#nome-do-projeto)<br>
+[⬆ Voltar ao topo](#projeto-integrador-ii)<br>
