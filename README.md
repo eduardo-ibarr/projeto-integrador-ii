@@ -1,10 +1,10 @@
 # Projeto Integrado II
 
-![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/iuricode/README-template?style=for-the-badge)
-![Bitbucket open issues](https://img.shields.io/bitbucket/issues/iuricode/README-template?style=for-the-badge)
-![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/iuricode/README-template?style=for-the-badge)
+![GitHub repo size](https://img.shields.io/github/repo-size/eduardo-ibarr/projeto-integrador-ii?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/eduardo-ibarr/projeto-integrador-ii?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/eduardo-ibarr/projeto-integrador-ii?style=for-the-badge)
+![Bitbucket open issues](https://img.shields.io/bitbucket/issues/eduardo-ibarr/projeto-integrador-ii?style=for-the-badge)
+![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/eduardo-ibarr/projeto-integrador-ii?style=for-the-badge)
 
 <img src="./exemplo.png" alt="exemplo imagem">
 
@@ -57,5 +57,3 @@ npm start
 ## 📝 Licença
 
 Esse projeto está sob licença. Veja o arquivo [LICENÇA](LICENSE.md) para mais detalhes.
-
-[⬆ Voltar ao topo](#projeto-integrador-ii)<br>
