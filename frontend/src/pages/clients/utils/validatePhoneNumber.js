@@ -4,12 +4,7 @@ export const validatePhoneNumber = (phoneNumber) => {
 	let increasingNumbers = 0;
 	let decreasingNumbers = 0;
 
-	const regexPhoneNumber = /^\(?\d{2}\)?[\s-]?[\s9]?\d{4}-?\d{4}$/g;
 	const regexMore5SameNumbers = /([0-9])\1{5,}/g;
-
-	if (regexPhoneNumber.test(phoneNumber) === false) {
-		isPassed = false;
-	}
 
 	if (regexMore5SameNumbers.test(phoneNumber)) {
 		isPassed = false;
@@ -27,7 +22,7 @@ export const validatePhoneNumber = (phoneNumber) => {
 		}
 	}
 
-	if (increasingNumbers > 5 || decreasingNumbers > 5) {
+	if (increasingNumbers > 5 || decreasingNumbers > 5 || isNaN(phoneNumber)) {
 		isPassed = false;
 	}
 

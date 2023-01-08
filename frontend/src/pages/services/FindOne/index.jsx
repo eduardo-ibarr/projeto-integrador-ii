@@ -20,8 +20,6 @@ export const FindOneServicePage = () => {
 
 	const { data: service, isLoading } = useShowService(id);
 
-	console.log(service);
-
 	if (isLoading) {
 		return <LoadingPage />;
 	}

@@ -102,13 +102,11 @@ export const FindOneClientPage = () => {
 		if (client[0].services) {
 			const ids = client[0].services;
 			const attendances = [];
-
 			for await (const id of ids) {
 				const attendance = await attendancesServices.showAttendance(id);
 
 				attendances.push(attendance);
 			}
-
 			setAttendancesByClient(attendancesByClient.concat(attendances));
 			setIsLoadingAttendances(false);
 		}

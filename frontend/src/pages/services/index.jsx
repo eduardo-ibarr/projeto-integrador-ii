@@ -100,7 +100,6 @@ export const ServicePage = () => {
 	const handleInactivateService = async () => {
 		try {
 			await inactivateService(serviceToInactivate);
-
 			setShowToast((current) => {
 				return {
 					...current,
@@ -114,7 +113,6 @@ export const ServicePage = () => {
 					error: true,
 				};
 			});
-
 			console.error(error);
 		}
 	};

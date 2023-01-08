@@ -2,25 +2,24 @@ import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import {
+	Box,
 	FormControl,
-	FormHelperText,
 	Grid,
-	IconButton,
 	Paper,
 	Stack,
 	TextField,
 	ThemeProvider,
-	Tooltip,
 } from '@mui/material';
-
-import EditIcon from '@mui/icons-material/Edit';
 
 import { useForm } from 'react-hook-form';
 
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-
-import { SideMenu, ToastError, ToastSuccess } from '../../../components';
+import {
+	ErrorMessage,
+	SideMenu,
+	ToastError,
+	ToastSuccess,
+	TooltipEdit,
+} from '../../../components';
 
 import { theme } from '../../../theme/theme';
 
@@ -31,15 +30,12 @@ import { clientInitialState } from './state/clientInitialState';
 
 import { useShowClient, useUpdateClient } from '../../../hooks/clients';
 
-const warningMessage = 'Preencha corretamente este campo';
-
-let schema = yup.object().shape({
-	name: yup.string().required(warningMessage),
-	phoneNumber: yup.number().required(warningMessage),
-	rg: yup.string().required(warningMessage),
-	cpf: yup.string().required(warningMessage),
-	address: yup.string().required(warningMessage),
-});
+import {
+	validateCPF,
+	validatePhoneNumber,
+	validateRG,
+	validateText,
+} from '../utils';
 
 export const UpdateOneClientPage = () => {
 	const { id } = useParams();
@@ -52,11 +48,10 @@ export const UpdateOneClientPage = () => {
 		register,
 		handleSubmit,
 		formState: { errors },
-		clearErrors,
 		reset,
-	} = useForm({
-		resolver: yupResolver(schema),
-	});
+	} = useForm();
+
+	errors;
 
 	const [clientState, dispatchClient] = useReducer(
 		clientReducer,
@@ -133,7 +128,6 @@ export const UpdateOneClientPage = () => {
 
 	const generateClient = (data) => {
 		const { name, phoneNumber, rg, cpf, address } = data;
-
 		return {
 			name,
 			phoneNumber,
@@ -145,13 +139,9 @@ export const UpdateOneClientPage = () => {
 	};
 
 	const onSubmit = async (data) => {
-		clearErrors();
-
 		try {
 			const client = generateClient(data);
-
 			await updateClient({ id, data: client });
-
 			setShowToast((current) => {
 				return {
 					...current,
@@ -173,7 +163,6 @@ export const UpdateOneClientPage = () => {
 	useEffect(() => {
 		if (!isLoadingClient) {
 			const { name, phoneNumber, rg, cpf, address } = client[0];
-
 			reset({
 				name,
 				phoneNumber,
@@ -208,172 +197,211 @@ export const UpdateOneClientPage = () => {
 
 					<Paper sx={{ padding: '20px', marginTop: '20px' }}>
 						<Stack spacing={2}>
-							<FormControl
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									flexDirection: 'row',
-								}}
-							>
-								<TextField
-									{...register('name')}
-									fullWidth
-									id="outlined-basic"
-									label="Nome completo"
-									disabled={clientState.name.disabled}
-									variant="outlined"
-									error={!!errors?.name}
-								/>
-								{!!errors?.name && (
-									<FormHelperText
-										sx={{ color: 'red', width: '20rem' }}
-									>
-										{errors?.name?.message}
-									</FormHelperText>
-								)}
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
+							<Box>
+								<FormControl
+									sx={{
+										display: 'flex',
+										alignItems: 'center',
+										flexDirection: 'row',
+									}}
 								>
-									<IconButton onClick={handleDisableName}>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</FormControl>
+									<TextField
+										{...register('name', {
+											required: true,
+											validate: (value) =>
+												validateText(value),
+										})}
+										fullWidth
+										id="outlined-basic"
+										label="Nome completo"
+										disabled={clientState.name.disabled}
+										variant="outlined"
+										error={!!errors?.name}
+									/>
 
-							<FormControl
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									flexDirection: 'row',
-								}}
-							>
-								<TextField
-									fullWidth
-									id="outlined-basic"
-									label="Número de celular com DDD"
-									variant="outlined"
-									disabled={clientState.phoneNumber.disabled}
-									{...register('phoneNumber')}
-									error={!!errors?.phoneNumber}
-								/>
-								{errors?.phoneNumber?.type === 'typeError' && (
-									<FormHelperText
-										sx={{ color: 'red', width: '20rem' }}
-									>
-										Preencha apenas numeros.
-									</FormHelperText>
+									<TooltipEdit onClick={handleDisableName} />
+								</FormControl>
+
+								{errors?.name?.type === 'required' && (
+									<ErrorMessage
+										isUpdate
+										message="Esse campo é requerido."
+									/>
 								)}
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
+
+								{errors?.name?.type === 'validate' && (
+									<ErrorMessage
+										isUpdate
+										message="Informe um nome válido."
+									/>
+								)}
+							</Box>
+
+							<Box>
+								<FormControl
+									sx={{
+										display: 'flex',
+										alignItems: 'center',
+										flexDirection: 'row',
+									}}
 								>
-									<IconButton
+									<TextField
+										fullWidth
+										id="outlined-basic"
+										label="Número de celular com DDD"
+										variant="outlined"
+										disabled={
+											clientState.phoneNumber.disabled
+										}
+										{...register('phoneNumber', {
+											required: true,
+											validate: (value) =>
+												validatePhoneNumber(value),
+										})}
+										error={!!errors?.phoneNumber}
+									/>
+
+									<TooltipEdit
 										onClick={handleDisablePhoneNumber}
-									>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</FormControl>
+									/>
+								</FormControl>
 
-							<FormControl
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									flexDirection: 'row',
-								}}
-							>
-								<TextField
-									fullWidth
-									id="outlined-basic"
-									label="CPF"
-									disabled={clientState.cpf.disabled}
-									variant="outlined"
-									{...register('cpf')}
-									error={!!errors?.cpf}
-								/>
-								{errors?.cpf && (
-									<FormHelperText
-										sx={{ color: 'red', width: '20rem' }}
-									>
-										{errors?.cpf?.message}
-									</FormHelperText>
+								{errors?.phoneNumber?.type === 'required' && (
+									<ErrorMessage
+										isUpdate
+										message="Esse campo é requerido."
+									/>
 								)}
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
-								>
-									<IconButton onClick={handleDisableCPF}>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</FormControl>
 
-							<FormControl
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									flexDirection: 'row',
-								}}
-							>
-								<TextField
-									fullWidth
-									id="outlined-basic"
-									label="RG"
-									disabled={clientState.rg.disabled}
-									variant="outlined"
-									{...register('rg')}
-									error={!!errors?.rg}
-								/>
-								{errors?.rg && (
-									<FormHelperText
-										sx={{ color: 'red', width: '20rem' }}
-									>
-										{errors?.rg?.message}
-									</FormHelperText>
+								{errors?.phoneNumber?.type === 'validate' && (
+									<ErrorMessage
+										isUpdate
+										message="Informe um número de celular válido."
+									/>
 								)}
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
-								>
-									<IconButton onClick={handleDisableRG}>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</FormControl>
+							</Box>
 
-							<FormControl
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									flexDirection: 'row',
-								}}
-							>
-								<TextField
-									fullWidth
-									id="outlined-basic"
-									label="Endereço"
-									disabled={clientState.address.disabled}
-									variant="outlined"
-									{...register('address')}
-									error={!!errors?.address}
-								/>
-								{errors?.address && (
-									<FormHelperText
-										sx={{ color: 'red', width: '20rem' }}
-									>
-										{errors?.address?.message}
-									</FormHelperText>
-								)}
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
+							<Box>
+								<FormControl
+									sx={{
+										display: 'flex',
+										alignItems: 'center',
+										flexDirection: 'row',
+									}}
 								>
-									<IconButton onClick={handleDisableAddress}>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</FormControl>
+									<TextField
+										fullWidth
+										id="outlined-basic"
+										label="CPF"
+										disabled={clientState.cpf.disabled}
+										variant="outlined"
+										{...register('cpf', {
+											required: true,
+											validate: (value) =>
+												validateCPF(value),
+										})}
+										error={!!errors?.cpf}
+									/>
+
+									<TooltipEdit onClick={handleDisableCPF} />
+								</FormControl>
+
+								{errors?.cpf?.type === 'required' && (
+									<ErrorMessage
+										isUpdate
+										message="Esse campo é requerido."
+									/>
+								)}
+
+								{errors?.cpf?.type === 'validate' && (
+									<ErrorMessage
+										isUpdate
+										message="Informe um CPF válido."
+									/>
+								)}
+							</Box>
+
+							<Box>
+								<FormControl
+									sx={{
+										display: 'flex',
+										alignItems: 'center',
+										flexDirection: 'row',
+									}}
+								>
+									<TextField
+										fullWidth
+										id="outlined-basic"
+										label="RG"
+										disabled={clientState.rg.disabled}
+										variant="outlined"
+										{...register('rg', {
+											required: true,
+											validate: (value) =>
+												validateRG(value),
+										})}
+										error={!!errors?.rg}
+									/>
+
+									<TooltipEdit onClick={handleDisableRG} />
+								</FormControl>
+
+								{errors?.rg?.type === 'required' && (
+									<ErrorMessage
+										isUpdate
+										message="Esse campo é requerido."
+									/>
+								)}
+
+								{errors?.rg?.type === 'validate' && (
+									<ErrorMessage
+										isUpdate
+										message="Informe um RG válido."
+									/>
+								)}
+							</Box>
+
+							<Box>
+								<FormControl
+									sx={{
+										display: 'flex',
+										alignItems: 'center',
+										flexDirection: 'row',
+									}}
+								>
+									<TextField
+										fullWidth
+										id="outlined-basic"
+										label="Endereço"
+										disabled={clientState.address.disabled}
+										variant="outlined"
+										error={!!errors?.address}
+										{...register('address', {
+											required: true,
+											validate: (value) =>
+												validateText(value),
+										})}
+									/>
+
+									<TooltipEdit
+										onClick={handleDisableAddress}
+									/>
+								</FormControl>
+
+								{errors?.address?.type === 'required' && (
+									<ErrorMessage
+										isUpdate
+										message="Esse campo é requerido."
+									/>
+								)}
+
+								{errors?.address?.type === 'validate' && (
+									<ErrorMessage
+										isUpdate
+										message="Informe um endereço válido."
+									/>
+								)}
+							</Box>
 						</Stack>
 					</Paper>
 

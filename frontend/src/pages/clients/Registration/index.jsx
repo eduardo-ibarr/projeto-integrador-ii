@@ -7,10 +7,7 @@ import {
 	TextField,
 	ThemeProvider,
 	FormControl,
-	FormHelperText,
 } from '@mui/material';
-
-import * as yup from 'yup';
 
 import { Stack } from '@mui/system';
 
@@ -22,32 +19,26 @@ import {
 	HeaderText,
 	ToastError,
 	ToastSuccess,
+	ErrorMessage,
 } from '../../../components';
 
 import { theme } from '../../../theme/theme';
 
-import { yupResolver } from '@hookform/resolvers/yup';
-
 import { useCreateClient } from '../../../hooks/clients';
 
-const warningMessage = 'Preencha corretamente este campo';
-
-let schema = yup.object().shape({
-	name: yup.string().required(warningMessage),
-	phoneNumber: yup.number().required(warningMessage),
-	rg: yup.string().required(warningMessage),
-	cpf: yup.string().required(warningMessage),
-	address: yup.string().required(warningMessage),
-});
+import {
+	validateCPF,
+	validatePhoneNumber,
+	validateRG,
+	validateText,
+} from '../utils';
 
 export const ClientRegistrationPage = () => {
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm({
-		resolver: yupResolver(schema),
-	});
+	} = useForm();
 
 	const { mutateAsync: createNewClient, isLoading } = useCreateClient();
 
@@ -91,9 +82,7 @@ export const ClientRegistrationPage = () => {
 	const onSubmit = async (data) => {
 		try {
 			const client = generateClient(data);
-
 			await createNewClient(client);
-
 			setShowToast((current) => {
 				return {
 					...current,
@@ -107,10 +96,11 @@ export const ClientRegistrationPage = () => {
 					error: true,
 				};
 			});
-
 			console.error(error);
 		}
 	};
+
+	errors;
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -134,17 +124,24 @@ export const ClientRegistrationPage = () => {
 						<Stack spacing={2}>
 							<FormControl>
 								<TextField
-									{...register('name')}
 									fullWidth
 									id="outlined-basic"
 									label="Nome completo"
 									variant="outlined"
 									error={!!errors?.name}
+									{...register('name', {
+										required: true,
+										validate: (value) =>
+											validateText(value),
+									})}
 								/>
-								{!!errors?.name && (
-									<FormHelperText sx={{ color: 'red' }}>
-										{errors?.name?.message}
-									</FormHelperText>
+
+								{errors?.name?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
+								)}
+
+								{errors?.name?.type === 'validate' && (
+									<ErrorMessage message="Informe um nome válido." />
 								)}
 							</FormControl>
 
@@ -154,13 +151,20 @@ export const ClientRegistrationPage = () => {
 									id="outlined-basic"
 									label="Número de celular com DDD"
 									variant="outlined"
-									{...register('phoneNumber')}
 									error={!!errors?.phoneNumber}
+									{...register('phoneNumber', {
+										required: true,
+										validate: (value) =>
+											validatePhoneNumber(value),
+									})}
 								/>
-								{errors?.phoneNumber?.type === 'typeError' && (
-									<FormHelperText sx={{ color: 'red' }}>
-										Preencha apenas numeros.
-									</FormHelperText>
+
+								{errors?.phoneNumber?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
+								)}
+
+								{errors?.phoneNumber?.type === 'validate' && (
+									<ErrorMessage message="Informe um número de celular válido." />
 								)}
 							</FormControl>
 
@@ -170,13 +174,19 @@ export const ClientRegistrationPage = () => {
 									id="outlined-basic"
 									label="CPF"
 									variant="outlined"
-									{...register('cpf')}
 									error={!!errors?.cpf}
+									{...register('cpf', {
+										required: true,
+										validate: (value) => validateCPF(value),
+									})}
 								/>
-								{errors?.cpf && (
-									<FormHelperText sx={{ color: 'red' }}>
-										{errors?.cpf?.message}
-									</FormHelperText>
+
+								{errors?.cpf?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
+								)}
+
+								{errors?.cpf?.type === 'validate' && (
+									<ErrorMessage message="Informe um CPF válido." />
 								)}
 							</FormControl>
 
@@ -186,13 +196,19 @@ export const ClientRegistrationPage = () => {
 									id="outlined-basic"
 									label="RG"
 									variant="outlined"
-									{...register('rg')}
 									error={!!errors?.rg}
+									{...register('rg', {
+										required: true,
+										validate: (value) => validateRG(value),
+									})}
 								/>
-								{errors?.rg && (
-									<FormHelperText sx={{ color: 'red' }}>
-										{errors?.rg?.message}
-									</FormHelperText>
+
+								{errors?.rg?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
+								)}
+
+								{errors?.rg?.type === 'validate' && (
+									<ErrorMessage message="Informe um RG válido." />
 								)}
 							</FormControl>
 
@@ -202,13 +218,20 @@ export const ClientRegistrationPage = () => {
 									id="outlined-basic"
 									label="Endereço"
 									variant="outlined"
-									{...register('address')}
 									error={!!errors?.address}
+									{...register('address', {
+										required: true,
+										validate: (value) =>
+											validateText(value),
+									})}
 								/>
-								{errors?.address && (
-									<FormHelperText sx={{ color: 'red' }}>
-										{errors?.address?.message}
-									</FormHelperText>
+
+								{errors?.address?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
+								)}
+
+								{errors?.address?.type === 'validate' && (
+									<ErrorMessage message="Informe um endereço válido." />
 								)}
 							</FormControl>
 						</Stack>

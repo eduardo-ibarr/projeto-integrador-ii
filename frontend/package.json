@@ -5,7 +5,6 @@
 	"dependencies": {
 		"@emotion/react": "^11.10.5",
 		"@emotion/styled": "^11.10.5",
-		"@hookform/resolvers": "^2.9.10",
 		"@mui/icons-material": "^5.10.3",
 		"@mui/material": "^5.10.4",
 		"@mui/styled-engine": "^5.11.0",
@@ -26,19 +25,13 @@
 		"react-scripts": "5.0.1",
 		"styled-component": "^2.8.0",
 		"uuid": "^9.0.0",
-		"web-vitals": "^2.1.4",
-		"yup": "^0.32.11"
+		"web-vitals": "^2.1.4"
 	},
 	"scripts": {
 		"start": "react-scripts start",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
-		"eject": "react-scripts eject",
-		"lint-fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
-	},
-	"engines": {
-		"node": "16.16.0",
-		"npm": "8.11.0"
+		"eject": "react-scripts eject"
 	},
 	"eslintConfig": {
 		"extends": [

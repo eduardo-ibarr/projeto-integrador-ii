@@ -1,9 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { v4 } from 'uuid';
 
 import {
 	FormControl,
-	FormHelperText,
 	Grid,
 	InputAdornment,
 	Paper,
@@ -14,8 +13,7 @@ import {
 
 import { useForm } from 'react-hook-form';
 
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { validatePrice, validateText } from '../utils';
 
 import {
 	SideMenu,
@@ -23,19 +21,12 @@ import {
 	HeaderText,
 	ToastError,
 	ToastSuccess,
+	ErrorMessage,
 } from '../../../components';
 
 import { theme } from '../../../theme/theme';
 
 import { useCreateService } from '../../../hooks/services';
-
-const warningMessage = 'Preencha corretamente este campo';
-
-let schema = yup.object().shape({
-	name: yup.string().required(warningMessage),
-	price: yup.string().required(warningMessage),
-	description: yup.string().required(warningMessage),
-});
 
 export const ServiceRegistrationPage = () => {
 	const { mutateAsync: createService } = useCreateService();
@@ -44,17 +35,7 @@ export const ServiceRegistrationPage = () => {
 		register,
 		handleSubmit,
 		formState: { errors },
-		watch,
-	} = useForm({
-		resolver: yupResolver(schema),
-	});
-
-	const { name, price, description } = watch();
-
-	const isDisabled = useMemo(
-		() => name === '' && price === '' && description === '',
-		[name, price, description]
-	);
+	} = useForm();
 
 	const [showToast, setShowToast] = useState({
 		error: false,
@@ -81,7 +62,6 @@ export const ServiceRegistrationPage = () => {
 
 	const generateService = (data) => {
 		const { name, price, description } = data;
-
 		return {
 			_id: v4(),
 			name,
@@ -96,7 +76,6 @@ export const ServiceRegistrationPage = () => {
 		try {
 			const service = generateService(data);
 			await createService(service);
-
 			setShowToast((current) => {
 				return {
 					...current,
@@ -110,7 +89,6 @@ export const ServiceRegistrationPage = () => {
 					error: true,
 				};
 			});
-
 			console.error(error);
 		}
 	};
@@ -139,16 +117,23 @@ export const ServiceRegistrationPage = () => {
 								<TextField
 									fullWidth
 									id="outlined-basic"
-									{...register('name')}
 									label="Nome"
 									variant="outlined"
 									error={!!errors.name}
 									sx={{ marginTop: '25px' }}
+									{...register('name', {
+										required: true,
+										validate: (value) =>
+											validateText(value),
+									})}
 								/>
-								{!!errors?.name && (
-									<FormHelperText sx={{ color: 'red' }}>
-										{errors?.name?.message}
-									</FormHelperText>
+
+								{errors?.name?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
+								)}
+
+								{errors?.name?.type === 'validate' && (
+									<ErrorMessage message="Informe um nome válido." />
 								)}
 							</FormControl>
 
@@ -157,7 +142,6 @@ export const ServiceRegistrationPage = () => {
 									id="outlined-basic"
 									label="Preço"
 									variant="outlined"
-									{...register('price')}
 									error={!!errors?.price}
 									InputProps={{
 										startAdornment: (
@@ -166,27 +150,42 @@ export const ServiceRegistrationPage = () => {
 											</InputAdornment>
 										),
 									}}
+									{...register('price', {
+										required: true,
+										validate: (value) =>
+											validatePrice(value),
+									})}
 								/>
-								{!!errors?.price && (
-									<FormHelperText sx={{ color: 'red' }}>
-										{errors?.name?.message}
-									</FormHelperText>
+
+								{errors?.name?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
+								)}
+
+								{errors?.name?.type === 'validate' && (
+									<ErrorMessage message="Informe um preço válido." />
 								)}
 							</FormControl>
 
 							<FormControl>
 								<TextField
 									fullWidth
-									{...register('description')}
 									id="outlined-basic"
 									label="Descrição"
 									variant="outlined"
 									error={!!errors.description}
+									{...register('description', {
+										required: true,
+										validate: (value) =>
+											validateText(value),
+									})}
 								/>
-								{!!errors?.description && (
-									<FormHelperText sx={{ color: 'red' }}>
-										{errors?.description?.message}
-									</FormHelperText>
+
+								{errors?.name?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
+								)}
+
+								{errors?.name?.type === 'validate' && (
+									<ErrorMessage message="Informe uma descrição válida." />
 								)}
 							</FormControl>
 						</Stack>
@@ -194,7 +193,6 @@ export const ServiceRegistrationPage = () => {
 
 					<FooterSubmits
 						backTo="/servicos"
-						isDisabled={isDisabled}
 						onClick={handleSubmit(onSubmit)}
 						text="Fazer o cadastro"
 					/>

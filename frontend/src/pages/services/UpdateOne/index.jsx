@@ -2,24 +2,17 @@ import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import {
+	Box,
 	FormControl,
-	FormHelperText,
 	Grid,
-	IconButton,
 	InputAdornment,
 	Paper,
 	Stack,
 	TextField,
 	ThemeProvider,
-	Tooltip,
 } from '@mui/material';
 
 import { useForm } from 'react-hook-form';
-
-import EditIcon from '@mui/icons-material/Edit';
-
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
 
 import { FooterSubmits } from '../../../components/FooterSubmits';
 
@@ -29,6 +22,8 @@ import {
 	HeaderText,
 	ToastError,
 	ToastSuccess,
+	ErrorMessage,
+	TooltipEdit,
 } from '../../../components';
 
 import { theme } from '../../../theme/theme';
@@ -37,14 +32,7 @@ import { serviceReducer } from './state/serviceReducer';
 import { serviceInitialState } from './state/serviceInitialState';
 
 import { useShowService, useUpdateService } from '../../../hooks/services';
-
-const warningMessage = 'Preencha corretamente este campo';
-
-let schema = yup.object().shape({
-	name: yup.string().required(warningMessage),
-	price: yup.string().required(warningMessage),
-	description: yup.string().required(warningMessage),
-});
+import { validatePrice, validateText } from '../utils';
 
 export const UpdateOneServicePage = () => {
 	const { id } = useParams();
@@ -56,9 +44,7 @@ export const UpdateOneServicePage = () => {
 		handleSubmit,
 		formState: { errors },
 		reset,
-	} = useForm({
-		resolver: yupResolver(schema),
-	});
+	} = useForm();
 
 	const [serviceState, dispatchService] = useReducer(
 		serviceReducer,
@@ -119,7 +105,6 @@ export const UpdateOneServicePage = () => {
 
 	const generateService = (data) => {
 		const { name, price, description } = data;
-
 		return {
 			name,
 			price,
@@ -132,7 +117,6 @@ export const UpdateOneServicePage = () => {
 		try {
 			const service = generateService(data);
 			await updateService({ id, data: service });
-
 			setShowToast((current) => {
 				return {
 					...current,
@@ -146,7 +130,6 @@ export const UpdateOneServicePage = () => {
 					error: true,
 				};
 			});
-
 			console.error(error);
 		}
 	};
@@ -154,7 +137,6 @@ export const UpdateOneServicePage = () => {
 	useEffect(() => {
 		if (!isLoading) {
 			const { name, price, description } = service[0];
-
 			reset({
 				name,
 				price,
@@ -187,113 +169,136 @@ export const UpdateOneServicePage = () => {
 
 					<Paper sx={{ padding: '20px', marginTop: '20px' }}>
 						<Stack spacing={2}>
-							<FormControl
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									flexDirection: 'row',
-								}}
-							>
-								<TextField
-									{...register('name')}
-									fullWidth
-									id="outlined-basic"
-									label="Nome do servico"
-									disabled={serviceState.name.disabled}
-									variant="outlined"
-									error={!!errors?.name}
-								/>
-								{!!errors?.name && (
-									<FormHelperText
-										sx={{ color: 'red', width: '20rem' }}
-									>
-										{errors?.name?.message}
-									</FormHelperText>
-								)}
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
-								>
-									<IconButton onClick={handleDisableName}>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</FormControl>
-
-							<FormControl
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									flexDirection: 'row',
-								}}
-							>
-								<TextField
-									{...register('price')}
-									fullWidth
-									id="outlined-basic"
-									label="Preço"
-									disabled={serviceState.price.disabled}
-									variant="outlined"
-									error={!!errors?.price}
-									InputProps={{
-										startAdornment: (
-											<InputAdornment position="start">
-												R$
-											</InputAdornment>
-										),
+							<Box>
+								<FormControl
+									sx={{
+										display: 'flex',
+										alignItems: 'center',
+										flexDirection: 'row',
 									}}
-								/>
-								{!!errors?.price && (
-									<FormHelperText
-										sx={{ color: 'red', width: '20rem' }}
-									>
-										{errors?.price?.message}
-									</FormHelperText>
-								)}
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
 								>
-									<IconButton onClick={handleDisablePrice}>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</FormControl>
+									<TextField
+										fullWidth
+										id="outlined-basic"
+										label="Nome do servico"
+										disabled={serviceState.name.disabled}
+										variant="outlined"
+										error={!!errors?.name}
+										{...register('name', {
+											required: true,
+											validate: (value) =>
+												validateText(value),
+										})}
+									/>
 
-							<FormControl
-								sx={{
-									display: 'flex',
-									alignItems: 'center',
-									flexDirection: 'row',
-								}}
-							>
-								<TextField
-									{...register('description')}
-									fullWidth
-									id="outlined-basic"
-									label="Descrição"
-									disabled={serviceState.description.disabled}
-									variant="outlined"
-									error={!!errors?.description}
-								/>
-								{!!errors?.description && (
-									<FormHelperText
-										sx={{ color: 'red', width: '20rem' }}
-									>
-										{errors?.description?.message}
-									</FormHelperText>
+									<TooltipEdit onClick={handleDisableName} />
+								</FormControl>
+
+								{errors?.name?.type === 'required' && (
+									<ErrorMessage
+										isUpdate
+										message="Esse campo é requerido."
+									/>
 								)}
-								<Tooltip
-									title="Editar este campo"
-									sx={{ marginLeft: '10px' }}
+
+								{errors?.name?.type === 'validate' && (
+									<ErrorMessage
+										isUpdate
+										message="Informe um nome válido."
+									/>
+								)}
+							</Box>
+
+							<Box>
+								<FormControl
+									sx={{
+										display: 'flex',
+										alignItems: 'center',
+										flexDirection: 'row',
+									}}
 								>
-									<IconButton
+									<TextField
+										fullWidth
+										id="outlined-basic"
+										label="Preço"
+										disabled={serviceState.price.disabled}
+										variant="outlined"
+										error={!!errors?.price}
+										InputProps={{
+											startAdornment: (
+												<InputAdornment position="start">
+													R$
+												</InputAdornment>
+											),
+										}}
+										{...register('price', {
+											required: true,
+											validate: (value) =>
+												validatePrice(value),
+										})}
+									/>
+
+									<TooltipEdit onClick={handleDisablePrice} />
+								</FormControl>
+
+								{errors?.name?.type === 'required' && (
+									<ErrorMessage
+										isUpdate
+										message="Esse campo é requerido."
+									/>
+								)}
+
+								{errors?.name?.type === 'validate' && (
+									<ErrorMessage
+										isUpdate
+										message="Informe um preço válido."
+									/>
+								)}
+							</Box>
+
+							<Box>
+								<FormControl
+									sx={{
+										display: 'flex',
+										alignItems: 'center',
+										flexDirection: 'row',
+									}}
+								>
+									<TextField
+										fullWidth
+										id="outlined-basic"
+										label="Descrição"
+										disabled={
+											serviceState.description.disabled
+										}
+										variant="outlined"
+										error={!!errors?.description}
+										{...register('description', {
+											required: true,
+											validate: (value) =>
+												validateText(value),
+										})}
+									/>
+
+									<TooltipEdit
 										onClick={handleDisableDescription}
-									>
-										<EditIcon />
-									</IconButton>
-								</Tooltip>
-							</FormControl>
+									/>
+								</FormControl>
+
+								{errors?.name?.type === 'required' && (
+									<ErrorMessage
+										isUpdate
+										message="Esse campo é requerido."
+									/>
+								)}
+
+								{errors?.name?.type === 'validate' && (
+									<ErrorMessage
+										isUpdate
+										message="Informe uma descrição válida."
+									/>
+								)}
+							</Box>
 						</Stack>
 					</Paper>
 

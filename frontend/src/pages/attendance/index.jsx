@@ -7,7 +7,6 @@ import {
 	Autocomplete,
 	Box,
 	FormControl,
-	FormHelperText,
 	Grid,
 	Paper,
 	Stack,
@@ -27,6 +26,7 @@ import {
 	LoadingPage,
 	ToastSuccess,
 	ToastError,
+	ErrorMessage,
 } from '../../components';
 
 import { useListActiveClients, useUpdateClient } from '../../hooks/clients';
@@ -104,11 +104,9 @@ export const AttendancePage = () => {
 		const clientSelected = clients.find(
 			(client) => client.name === data.client
 		);
-
 		const serviceSelected = services.find(
 			(service) => service.name === data.service
 		);
-
 		return {
 			clientSelected,
 			serviceSelected,
@@ -119,10 +117,9 @@ export const AttendancePage = () => {
 		try {
 			await createAttendance(attendance);
 			await updateClient({
-				value: clientSelected,
+				data: clientSelected,
 				id: clientSelected._id,
 			});
-
 			setShowToast((current) => {
 				return {
 					...current,
@@ -136,22 +133,18 @@ export const AttendancePage = () => {
 					error: true,
 				};
 			});
-
 			console.error(error);
 		}
 	};
 
 	const onSubmit = async (data) => {
 		const { clientSelected, serviceSelected } = findSelectedValuesOn(data);
-
 		const attendance = generateAttendance({
 			clientSelected,
 			data,
 			serviceSelected,
 		});
-
 		updateClientSelectedWithAttendance({ clientSelected, attendance });
-
 		await sendRequests({ attendance, clientSelected });
 	};
 
@@ -191,23 +184,19 @@ export const AttendancePage = () => {
 										renderInput={(params) => (
 											<TextField
 												{...params}
+												label="Selecione um cliente"
+												error={!!errors.client}
 												{...register('client', {
 													required: true,
 												})}
-												error={!!errors.client}
-												label="Selecione um cliente"
 											/>
 										)}
 									/>
 									{!!errors.client && (
-										<FormHelperText
-											sx={{
-												marginTop: '0.5rem',
-												color: 'red',
-											}}
-										>
-											O campo é obrigatório.
-										</FormHelperText>
+										<ErrorMessage
+											isUpdate
+											message="O campo é obrigatório."
+										/>
 									)}
 								</FormControl>
 
@@ -220,23 +209,20 @@ export const AttendancePage = () => {
 										renderInput={(params) => (
 											<TextField
 												{...params}
+												error={!!errors.service}
+												label="Selecione um serviço"
 												{...register('service', {
 													required: true,
 												})}
-												error={!!errors.service}
-												label="Selecione um serviço"
 											/>
 										)}
 									/>
+
 									{!!errors.service && (
-										<FormHelperText
-											sx={{
-												marginTop: '0.5rem',
-												color: 'red',
-											}}
-										>
-											O campo é obrigatório.
-										</FormHelperText>
+										<ErrorMessage
+											isUpdate
+											message="O campo é obrigatório."
+										/>
 									)}
 								</FormControl>
 							</Box>
@@ -254,25 +240,22 @@ export const AttendancePage = () => {
 										render={(props) => (
 											<TextField
 												{...props}
+												error={!!errors.date}
+												type="date"
 												{...register('date', {
 													required: true,
 												})}
-												error={!!errors.date}
-												type="date"
 											/>
 										)}
 										name="date"
 										control={control}
-									></Controller>
+									/>
+
 									{!!errors.date && (
-										<FormHelperText
-											sx={{
-												marginTop: '0.5rem',
-												color: 'red',
-											}}
-										>
-											O campo é obrigatório.
-										</FormHelperText>
+										<ErrorMessage
+											isUpdate
+											message="O campo é obrigatório."
+										/>
 									)}
 								</FormControl>
 
@@ -281,25 +264,22 @@ export const AttendancePage = () => {
 										render={(props) => (
 											<TextField
 												{...props}
+												error={!!errors.time}
+												type="time"
 												{...register('time', {
 													required: true,
 												})}
-												error={!!errors.time}
-												type="time"
 											/>
 										)}
 										name="time"
 										control={control}
-									></Controller>
+									/>
+
 									{!!errors.time && (
-										<FormHelperText
-											sx={{
-												marginTop: '0.5rem',
-												color: 'red',
-											}}
-										>
-											O campo é obrigatório.
-										</FormHelperText>
+										<ErrorMessage
+											isUpdate
+											message="O campo é obrigatório."
+										/>
 									)}
 								</FormControl>
 							</Box>

@@ -11,7 +11,6 @@ import {
 	CardContent,
 	FormControl,
 	FormControlLabel,
-	FormHelperText,
 	FormLabel,
 	Grid,
 	IconButton,
@@ -37,6 +36,7 @@ import {
 	LoadingPage,
 	ToastError,
 	ToastSuccess,
+	ErrorMessage,
 } from '../../components';
 
 import { theme } from '../../theme/theme';
@@ -83,6 +83,7 @@ export const Home = () => {
 	});
 
 	const { isDone, isPaid } = watch();
+
 	const [day, setDay] = useState();
 
 	const [homePageState, dispatchHomePage] = useReducer(
@@ -98,29 +99,26 @@ export const Home = () => {
 	const attendancesForTheDay = useMemo(() => {
 		if (hasSomeData) {
 			const results = [];
-
 			for (const attendance of attendances) {
 				const isSameDate =
 					moment(attendance.date).format('DD/MM/yyyy') ===
 					moment(day).format('DD/MM/yyyy');
-
-				if (isSameDate) {
+				const isAlreadyEddited = moment(attendance.updatedAt).isBefore(
+					day
+				);
+				if (isSameDate && !isAlreadyEddited) {
 					const clientOfTheAttendance = clients.find(
 						(client) => client._id === attendance.client
 					);
-
 					const attendanceWithClientName = {
 						...attendance,
 						clientName: clientOfTheAttendance.name,
 					};
-
 					results.push(attendanceWithClientName);
 				}
 			}
-
 			return results;
 		}
-
 		return;
 	}, [day, isLoadingAttendances, isLoadingClients, attendances, clients]);
 
@@ -161,14 +159,19 @@ export const Home = () => {
 	};
 
 	const onSubmit = async (data) => {
+		data;
+
 		try {
 			const { isDone, isPaid, totalPaid } = data;
-
 			await updateAttendance({
 				id: homePageState.selectedAttendanceId,
-				data: { isDone, isPaid, total: totalPaid },
+				data: {
+					isDone,
+					isPaid,
+					totalPaid,
+					updatedAt: new Date(),
+				},
 			});
-
 			dispatchHomePage({ type: 'SET_TOAST_SUCCESS', value: true });
 		} catch (error) {
 			dispatchHomePage({ type: 'SET_TOAST_ERROR', value: true });
@@ -346,7 +349,6 @@ export const Home = () => {
 									Status do atendimento
 								</FormLabel>
 								<Controller
-									rules={{ required: true }}
 									control={control}
 									name="isDone"
 									render={({ field }) => (
@@ -373,9 +375,6 @@ export const Home = () => {
 												Status de pagamento
 											</FormLabel>
 											<Controller
-												rules={{
-													required: true,
-												}}
 												control={control}
 												name="isPaid"
 												render={({ field }) => (
@@ -403,11 +402,6 @@ export const Home = () => {
 												id="outlined-basic"
 												label="Valor pago"
 												variant="outlined"
-												{...register('totalPaid', {
-													required: true,
-													validate: (value) =>
-														Number(value) > 0,
-												})}
 												sx={{ marginTop: '2rem' }}
 												error={!!errors.totalPaid}
 												InputProps={{
@@ -417,14 +411,19 @@ export const Home = () => {
 														</InputAdornment>
 													),
 												}}
+												{...register('totalPaid', {
+													validate: (value) =>
+														!isNaN(value) &&
+														value > 0,
+												})}
 											/>
-											{!!errors?.totalPaid && (
-												<FormHelperText
-													sx={{ color: 'red' }}
-												>
-													Preencha com numeros maiores
-													que zero.
-												</FormHelperText>
+
+											{!!errors.totalPaid && (
+												<ErrorMessage
+													isUpdate
+													message="Preencha com numeros maiores
+													que zero."
+												/>
 											)}
 										</FormControl>
 									)}
