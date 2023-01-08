@@ -1,69 +1,65 @@
-## Stacks utilizadas:
+# Projeto Integrado II
 
-- Node.js
-- React.js
-- Express.js
-- MongoDB (mongoose)
-- MUI
-- Moment.js
-- Axios
-- UUID
-- CORS
+![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/iuricode/README-template?style=for-the-badge)
+![Bitbucket open issues](https://img.shields.io/bitbucket/issues/iuricode/README-template?style=for-the-badge)
+![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/iuricode/README-template?style=for-the-badge)
 
-No front, foram utilizados componentes funcionais em React, além de hooks e contexto para o consumo de API local ou em nuvem. 
-A estilização foi feita através do MUI - Material UI, uma biblioteca de componentes estilizados para diversos casos de uso.
-As validações foram completamente baseadas em expressões regulares (REGEX).
+<img src="./exemplo.png" alt="exemplo imagem">
 
-No back, a API foi toda desenvolvida em Node.js, utlizando Express.js e o banco de dados não-relacional MongoDB, além de controle de acesso à API através de CORS. Modelada através de controllers, services, routes e models, ela se apresenta em um bom nível organizacional.
+> Projeto fullstack para o controle de clientes, serviços e atendimentos de um salão de beleza.
 
-## Funcionalidades até o momento:
+### Ajustes e melhorias
 
-- Criar, ler, editar e deletar clientes e serviços
-- Criar atendimentos através de clientes e serviços cadastrados
-- Tabelas com paginação personalizada
-- Filtros de clientes e serviços
-- Exibição de atendimentos por data selecionada
-- Ocultação de dados sensíveis dos clientes, como CPF, RG e Contato
-- Exibição de data e hora de criação e última alteração de clientes e serviços
-- Validações por expressões regulares em todos os inputs
-- Exibição de apenas clientes, serviços e atendimentos ativos
+O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas nas seguintes tarefas:
 
-### Validações
+- [x] Adicionar hooks
+- [x] Refatorar os forms
+- [x] Diminuir as renderizações
 
-- Nome
-        
-        - Min. 2 máx. 100 caracteres.
-        - Bloqueio para +3 caracteres iguais.
-        - Bloqueio para +2 espaços.
-        - Bloqueio para -2 palavras.
+## 💻 Pré-requisitos
 
-- Número de celular
+Antes de começar, verifique se você atendeu aos seguintes requisitos:
 
-        - Máx. 13 caracteres.
-        - DDD e 9 obrigatórios.
-        - Separadores opcionais (espaço e -).
-        - Bloqueio para +5 números iguais.
-        - Bloqueio para sequências crescentes e decrescentes.
+- Você instalou a versão mais recente de `Node.js`
 
-- CPF
+## 🚀 Instalando projeto-integrador-ii
 
-        - Validação através de algoritmo adaptado do sistema da Receita Federal do Brasil.
+Para instalar o projeto-integrador-ii, siga estas etapas:
 
+Linux e macOS:
 
-- RG
+```
+<comando_de_instalação>
+```
 
-        - Máx. 11 caracteres.
-        - Separadores opcionais (espaço, . e -).
-        - Bloqueio para +5 números iguais.
-        - Bloqueio para sequências crescentes e decrescentes.
+Windows:
 
-- Endereço
+```
+<comando_de_instalação>
+```
 
-        - Min. 2 máx. 180 caracteres.
-        - Bloqueio para +3 caracteres iguais.
-        - Bloqueio para +2 espaços.
-        - Bloqueio para -2 palavras.
+## ☕ Usando projeto-integrador-ii
 
+Para usar projeto-integrador-ii, siga estas etapas:
 
+1. Configure as variáveis de ambiente do backend. (dados de conexão do MongoDB)
 
-#### Gentileza atualizar este arquivo a cada adição de nova funcionalidade.
+2. Abra o terminal na pasta backend, e digite o seguinte comando:
+
+```
+npm run dev
+```
+
+3. Abra o terminal na pasta frontend, e digite o seguinte comando:
+
+```
+npm start
+```
+
+## 📝 Licença
+
+Esse projeto está sob licença. Veja o arquivo [LICENÇA](LICENSE.md) para mais detalhes.
+
+[⬆ Voltar ao topo](#nome-do-projeto)<br>
