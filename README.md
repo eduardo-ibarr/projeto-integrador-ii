@@ -1,4 +1,4 @@
-# Projeto Integrado II
+# Projeto Integrador II
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/eduardo-ibarr/projeto-integrador-ii?style=for-the-badge)
 ![GitHub language count](https://img.shields.io/github/languages/count/eduardo-ibarr/projeto-integrador-ii?style=for-the-badge)
