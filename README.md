@@ -28,23 +28,19 @@ Antes de começar, verifique se você atendeu aos seguintes requisitos:
 
 Para instalar o projeto-integrador-ii, siga estas etapas:
 
-Linux e macOS:
+1. Clone este repositório em sua máquina.
+
+2. Abra um terminal para cada pasta do projeto (backend e frontend) e execute o seguinte comando:
 
 ```
-<comando_de_instalação>
+npm install
 ```
 
-Windows:
+## ☕ Usando o projeto-integrador-ii
 
-```
-<comando_de_instalação>
-```
+Para usar o projeto-integrador-ii, siga estas etapas:
 
-## ☕ Usando projeto-integrador-ii
-
-Para usar projeto-integrador-ii, siga estas etapas:
-
-1. Configure as variáveis de ambiente do backend. (dados de conexão do MongoDB)
+1. Configure as variáveis de ambiente do backend. (são dados de conexão do MongoDB, crie um banco de dados de teste e adicione as informações da string de conexão em um `.env` como no `.env.example`)
 
 2. Abra o terminal na pasta backend, e digite o seguinte comando:
 
