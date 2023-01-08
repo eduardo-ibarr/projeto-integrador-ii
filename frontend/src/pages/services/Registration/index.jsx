@@ -17,14 +17,17 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { SideMenu } from '../../../components/SideMenu';
-import { ModalSucess } from '../../../components/ModalSucess';
+import {
+	SideMenu,
+	FooterSubmits,
+	HeaderText,
+	ToastError,
+	ToastSuccess,
+} from '../../../components';
 
 import { theme } from '../../../theme/theme';
 
 import { useCreateService } from '../../../hooks/services';
-import { FooterSubmits } from '../../../components/FooterSubmits';
-import { HeaderText } from '../../../components/HeaderText';
 
 const warningMessage = 'Preencha corretamente este campo';
 
@@ -53,10 +56,27 @@ export const ServiceRegistrationPage = () => {
 		[name, price, description]
 	);
 
-	const [showModal, setShowModal] = useState(false);
+	const [showToast, setShowToast] = useState({
+		error: false,
+		success: false,
+	});
 
-	const handleCloseModal = () => {
-		setShowModal(false);
+	const handleCloseToastSuccess = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				success: false,
+			};
+		});
+	};
+
+	const handleCloseToastError = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				error: false,
+			};
+		});
 	};
 
 	const generateService = (data) => {
@@ -76,9 +96,22 @@ export const ServiceRegistrationPage = () => {
 		try {
 			const service = generateService(data);
 			await createService(service);
-			setShowModal(true);
+
+			setShowToast((current) => {
+				return {
+					...current,
+					success: true,
+				};
+			});
 		} catch (error) {
-			throw new Error(error);
+			setShowToast((current) => {
+				return {
+					...current,
+					error: true,
+				};
+			});
+
+			console.error(error);
 		}
 	};
 
@@ -165,15 +198,18 @@ export const ServiceRegistrationPage = () => {
 						onClick={handleSubmit(onSubmit)}
 						text="Fazer o cadastro"
 					/>
-
-					{showModal && (
-						<ModalSucess
-							handleClose={handleCloseModal}
-							text="O serviço foi cadastrado com êxito!"
-						/>
-					)}
 				</Grid>
 			</Grid>
+
+			<ToastError
+				open={showToast.error}
+				handleClose={handleCloseToastError}
+			/>
+
+			<ToastSuccess
+				open={showToast.success}
+				handleClose={handleCloseToastSuccess}
+			/>
 		</ThemeProvider>
 	);
 };

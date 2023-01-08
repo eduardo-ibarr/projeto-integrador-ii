@@ -23,11 +23,15 @@ import { ThemeProvider } from '@mui/material/styles';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { TablePaginationActions } from '../../components/TablePaginationActions';
-import { SideMenu } from '../../components/SideMenu';
-import { AlertDelete } from '../../components/AlertDelete';
-import { LoadingPage } from '../../components/LoadingPage';
-import { FooterButtons } from '../../components/FooterButtons';
+import {
+	TablePaginationActions,
+	SideMenu,
+	AlertDelete,
+	LoadingPage,
+	FooterButtons,
+	ToastError,
+	ToastSuccess,
+} from '../../components';
 
 import { theme } from '../../theme/theme';
 
@@ -36,16 +40,26 @@ import { useListActiveClients, useInactivateClient } from '../../hooks/clients';
 export const ClientsPage = () => {
 	const { data: clients, isLoading } = useListActiveClients();
 
-	const { mutateAsync: inactivateClient } = useInactivateClient();
+	const { mutateAsync: inactivateClient, isSuccess: isSuccessInactivate } =
+		useInactivateClient();
 
 	const [clientToSearch, setClientToSearch] = useState('');
 
 	const [showModal, setShowModal] = useState(false);
 
+	const [showToast, setShowToast] = useState({
+		error: false,
+		success: false,
+	});
+
 	const [clientToInactivate, setClientToInactivate] = useState();
 
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(5);
+
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
 	const emptyRows =
 		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - clients.length) : 0;
@@ -59,6 +73,24 @@ export const ClientsPage = () => {
 		setPage(0);
 	};
 
+	const handleCloseToastSuccess = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				success: false,
+			};
+		});
+	};
+
+	const handleCloseToastError = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				error: false,
+			};
+		});
+	};
+
 	const handleCloseModal = () => {
 		setShowModal(false);
 	};
@@ -70,14 +102,24 @@ export const ClientsPage = () => {
 	const handleInactivateClient = async () => {
 		try {
 			await inactivateClient(clientToInactivate);
+
+			setShowToast((current) => {
+				return {
+					...current,
+					success: true,
+				};
+			});
 		} catch (error) {
-			throw new Error(error);
+			setShowToast((current) => {
+				return {
+					...current,
+					error: true,
+				};
+			});
+
+			console.error(error);
 		}
 	};
-
-	if (isLoading) {
-		return <LoadingPage />;
-	}
 
 	const filteredClients = clients.filter((client) => {
 		return client.name.toLowerCase().includes(clientToSearch.toLowerCase());
@@ -277,14 +319,22 @@ export const ClientsPage = () => {
 						text="Cadastrar novo cliente"
 					/>
 
-					{showModal && (
-						<AlertDelete
-							handleCloseModal={handleCloseModal}
-							handleDelete={handleInactivateClient}
-							showModal={showModal}
-							text="cliente"
-						/>
-					)}
+					<AlertDelete
+						handleCloseModal={handleCloseModal}
+						handleDelete={handleInactivateClient}
+						showModal={showModal && !isSuccessInactivate}
+						text="cliente"
+					/>
+
+					<ToastError
+						open={showToast.error}
+						handleClose={handleCloseToastError}
+					/>
+
+					<ToastSuccess
+						open={showToast.success}
+						handleClose={handleCloseToastSuccess}
+					/>
 				</Grid>
 			</Grid>
 		</ThemeProvider>

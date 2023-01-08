@@ -4,6 +4,6 @@ import { servicesService } from '../../services/api';
 
 export function useListActiveServices() {
 	return useQuery('listActiveServices', servicesService.listActiveServices, {
-		cacheTime: 0,
+		cacheTime: 100,
 	});
 }

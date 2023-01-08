@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
@@ -24,11 +23,15 @@ import { ThemeProvider } from '@mui/material/styles';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { SideMenu } from '../../components/SideMenu';
-import { AlertDelete } from '../../components/AlertDelete';
-import { TablePaginationActions } from '../../components/TablePaginationActions';
-import { FooterButtons } from '../../components/FooterButtons';
-import { LoadingPage } from '../../components/LoadingPage';
+import {
+	SideMenu,
+	AlertDelete,
+	TablePaginationActions,
+	FooterButtons,
+	LoadingPage,
+	ToastError,
+	ToastSuccess,
+} from '../../components';
 
 import { theme } from '../../theme/theme';
 
@@ -39,7 +42,8 @@ import {
 
 export const ServicePage = () => {
 	const { data: services, isLoading } = useListActiveServices();
-	const { mutateAsync: inactivateService } = useInactivateService();
+	const { mutateAsync: inactivateService, isSuccess: isSuccessInactivate } =
+		useInactivateService();
 
 	const [servicesToSearch, setServicesToSearch] = useState('');
 
@@ -50,8 +54,13 @@ export const ServicePage = () => {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(5);
 
+	const [showToast, setShowToast] = useState({
+		error: false,
+		success: false,
+	});
+
 	const emptyRows =
-		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services.length) : 0;
+		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services?.length) : 0;
 
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -66,6 +75,24 @@ export const ServicePage = () => {
 		setPage(0);
 	};
 
+	const handleCloseToastSuccess = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				success: false,
+			};
+		});
+	};
+
+	const handleCloseToastError = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				error: false,
+			};
+		});
+	};
+
 	const handleCloseModal = () => {
 		setShowModal(false);
 	};
@@ -73,8 +100,22 @@ export const ServicePage = () => {
 	const handleInactivateService = async () => {
 		try {
 			await inactivateService(serviceToInactivate);
+
+			setShowToast((current) => {
+				return {
+					...current,
+					success: true,
+				};
+			});
 		} catch (error) {
-			throw new Error(error);
+			setShowToast((current) => {
+				return {
+					...current,
+					error: true,
+				};
+			});
+
+			console.error(error);
 		}
 	};
 
@@ -279,17 +320,25 @@ export const ServicePage = () => {
 						goTo="/servicos/novo"
 						text="Cadastrar novo serviço"
 					/>
-
-					{showModal && (
-						<AlertDelete
-							handleCloseModal={handleCloseModal}
-							handleDelete={handleInactivateService}
-							showModal={showModal}
-							text="serviço"
-						/>
-					)}
 				</Grid>
 			</Grid>
+
+			<AlertDelete
+				handleCloseModal={handleCloseModal}
+				handleDelete={handleInactivateService}
+				showModal={showModal && !isSuccessInactivate}
+				text="serviço"
+			/>
+
+			<ToastError
+				open={showToast.error}
+				handleClose={handleCloseToastError}
+			/>
+
+			<ToastSuccess
+				open={showToast.success}
+				handleClose={handleCloseToastSuccess}
+			/>
 		</ThemeProvider>
 	);
 };

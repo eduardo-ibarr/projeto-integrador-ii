@@ -23,7 +23,7 @@ export const showService = async (id) => {
 };
 
 export const updateService = async ({ id, data }) => {
-	const response = await client.put(`/services/${id}`, data);
+	const response = await client.patch(`/services/${id}`, data);
 
 	return response.data;
 };

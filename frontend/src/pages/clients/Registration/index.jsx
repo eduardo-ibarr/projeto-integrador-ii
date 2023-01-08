@@ -16,15 +16,17 @@ import { Stack } from '@mui/system';
 
 import { useForm } from 'react-hook-form';
 
-import { SideMenu } from '../../../components/SideMenu';
-import { ModalSucess } from '../../../components/ModalSucess';
+import {
+	SideMenu,
+	FooterSubmits,
+	HeaderText,
+	ToastError,
+	ToastSuccess,
+} from '../../../components';
 
 import { theme } from '../../../theme/theme';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-
-import { FooterSubmits } from '../../../components/FooterSubmits';
-import { HeaderText } from '../../../components/HeaderText';
 
 import { useCreateClient } from '../../../hooks/clients';
 
@@ -49,10 +51,27 @@ export const ClientRegistrationPage = () => {
 
 	const { mutateAsync: createNewClient, isLoading } = useCreateClient();
 
-	const [showModal, setShowModal] = useState(false);
+	const [showToast, setShowToast] = useState({
+		error: false,
+		success: false,
+	});
 
-	const handleClose = () => {
-		setShowModal(false);
+	const handleCloseToastSuccess = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				success: false,
+			};
+		});
+	};
+
+	const handleCloseToastError = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				error: false,
+			};
+		});
 	};
 
 	const generateClient = (data) => {
@@ -75,8 +94,20 @@ export const ClientRegistrationPage = () => {
 
 			await createNewClient(client);
 
-			setShowModal(true);
+			setShowToast((current) => {
+				return {
+					...current,
+					success: true,
+				};
+			});
 		} catch (error) {
+			setShowToast((current) => {
+				return {
+					...current,
+					error: true,
+				};
+			});
+
 			console.error(error);
 		}
 	};
@@ -181,17 +212,10 @@ export const ClientRegistrationPage = () => {
 								)}
 							</FormControl>
 						</Stack>
-
-						{showModal && (
-							<ModalSucess
-								handleClose={handleClose}
-								text="O cliente foi cadastrado com êxito!"
-							/>
-						)}
 					</Paper>
 
 					<FooterSubmits
-						backTo="/servicos"
+						backTo="/clientes"
 						isDisabled={false}
 						isLoading={isLoading}
 						onClick={handleSubmit(onSubmit)}
@@ -199,6 +223,16 @@ export const ClientRegistrationPage = () => {
 					/>
 				</Grid>
 			</Grid>
+
+			<ToastError
+				open={showToast.error}
+				handleClose={handleCloseToastError}
+			/>
+
+			<ToastSuccess
+				open={showToast.success}
+				handleClose={handleCloseToastSuccess}
+			/>
 		</ThemeProvider>
 	);
 };

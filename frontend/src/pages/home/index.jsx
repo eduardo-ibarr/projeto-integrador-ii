@@ -1,6 +1,8 @@
 import React, { useMemo, useReducer, useState } from 'react';
 import moment from 'moment';
 
+import { Navigate } from 'react-router-dom';
+
 import {
 	Box,
 	Button,
@@ -29,9 +31,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { Controller, useForm } from 'react-hook-form';
 
-import { SideMenu } from '../../components/SideMenu';
-import { AlertDelete } from '../../components/AlertDelete';
-import { LoadingPage } from '../../components/LoadingPage';
+import {
+	SideMenu,
+	AlertDelete,
+	LoadingPage,
+	ToastError,
+	ToastSuccess,
+} from '../../components';
 
 import { theme } from '../../theme/theme';
 
@@ -54,8 +60,13 @@ export const Home = () => {
 		useListActiveAttendances();
 	const { data: clients, isLoading: isLoadingClients } =
 		useListActiveClients();
-	const { mutateAsync: inactivateAttendance } = useInactivateAttendance();
-	const { mutateAsync: updateAttendance } = useUpdateAttendance();
+	const {
+		mutateAsync: inactivateAttendance,
+		isSuccess: isSuccessInactivate,
+	} = useInactivateAttendance();
+
+	const { mutateAsync: updateAttendance, isSuccess: isSuccessUpdate } =
+		useUpdateAttendance();
 
 	const {
 		handleSubmit,
@@ -79,8 +90,13 @@ export const Home = () => {
 		homePageInitialState
 	);
 
+	const hasSomeData = useMemo(
+		() =>
+			!isLoadingAttendances && !isLoadingClients && attendances && clients
+	);
+
 	const attendancesForTheDay = useMemo(() => {
-		if (!isLoadingAttendances && !isLoadingClients) {
+		if (hasSomeData) {
 			const results = [];
 
 			for (const attendance of attendances) {
@@ -106,7 +122,7 @@ export const Home = () => {
 		}
 
 		return;
-	}, [day, isLoadingAttendances, isLoadingClients]);
+	}, [day, isLoadingAttendances, isLoadingClients, attendances, clients]);
 
 	if (isLoadingAttendances) {
 		return <LoadingPage />;
@@ -116,8 +132,20 @@ export const Home = () => {
 		return <LoadingPage />;
 	}
 
+	if (!attendances || !clients) {
+		return <Navigate to="/atendimentos" />;
+	}
+
 	const handleCloseFinishModal = () => {
 		dispatchHomePage({ type: 'SET_CLOSE_FINISH_MODAL', value: false });
+	};
+
+	const handleCloseToastSuccess = () => {
+		dispatchHomePage({ type: 'SET_TOAST_SUCCESS', value: false });
+	};
+
+	const handleCloseToastError = () => {
+		dispatchHomePage({ type: 'SET_TOAST_ERROR', value: false });
 	};
 
 	const handleCloseInactivateModal = () => {
@@ -140,17 +168,21 @@ export const Home = () => {
 				id: homePageState.selectedAttendanceId,
 				data: { isDone, isPaid, total: totalPaid },
 			});
+
+			dispatchHomePage({ type: 'SET_TOAST_SUCCESS', value: true });
 		} catch (error) {
-			throw new Error(error);
+			dispatchHomePage({ type: 'SET_TOAST_ERROR', value: true });
+			console.error(error);
 		}
 	};
 
 	const handleInactivateAttendance = async () => {
 		try {
 			await inactivateAttendance(homePageState.selectedAttendanceId);
-			window.location.reload();
+			dispatchHomePage({ type: 'SET_TOAST_SUCCESS', value: true });
 		} catch (error) {
-			throw new Error(error);
+			dispatchHomePage({ type: 'SET_TOAST_ERROR', value: true });
+			console.error(error);
 		}
 	};
 
@@ -245,9 +277,9 @@ export const Home = () => {
 																	{
 																		type: 'SET_OPEN_FINISH_MODAL',
 																		values: {
-																			openFinishModal: true,
 																			selectedAttendanceId:
 																				attendance._id,
+																			openFinishModal: true,
 																		},
 																	}
 																);
@@ -269,9 +301,9 @@ export const Home = () => {
 																	{
 																		type: 'SET_OPEN_INACTIVATE_MODAL',
 																		values: {
-																			openInactivateModal: true,
 																			selectedAttendanceId:
 																				attendance._id,
+																			openInactivateModal: true,
 																		},
 																	}
 																)
@@ -291,7 +323,7 @@ export const Home = () => {
 				</Grid>
 			</Grid>
 
-			<Modal open={homePageState.openFinishModal}>
+			<Modal open={homePageState.openFinishModal && !isSuccessUpdate}>
 				<Box sx={modalStyle}>
 					<Typography
 						id="modal-modal-title"
@@ -426,14 +458,24 @@ export const Home = () => {
 				</Box>
 			</Modal>
 
-			{homePageState.openInactivateModal && (
-				<AlertDelete
-					handleCloseModal={handleCloseInactivateModal}
-					handleDelete={handleInactivateAttendance}
-					showModal={homePageState.openInactivateModal}
-					text="atendimento"
-				/>
-			)}
+			<AlertDelete
+				handleCloseModal={handleCloseInactivateModal}
+				handleDelete={handleInactivateAttendance}
+				showModal={
+					homePageState.openInactivateModal && !isSuccessInactivate
+				}
+				text="atendimento"
+			/>
+
+			<ToastError
+				open={homePageState.openErrorToast}
+				handleClose={handleCloseToastError}
+			/>
+
+			<ToastSuccess
+				open={homePageState.openSuccessToast}
+				handleClose={handleCloseToastSuccess}
+			/>
 		</ThemeProvider>
 	);
 };

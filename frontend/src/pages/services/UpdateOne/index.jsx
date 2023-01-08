@@ -14,24 +14,29 @@ import {
 	Tooltip,
 } from '@mui/material';
 
+import { useForm } from 'react-hook-form';
+
 import EditIcon from '@mui/icons-material/Edit';
+
 import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import { FooterSubmits } from '../../../components/FooterSubmits';
 
-import { SideMenu } from '../../../components/SideMenu';
-import { ModalSucess } from '../../../components/ModalSucess';
+import {
+	SideMenu,
+	LoadingPage,
+	HeaderText,
+	ToastError,
+	ToastSuccess,
+} from '../../../components';
 
 import { theme } from '../../../theme/theme';
 
 import { serviceReducer } from './state/serviceReducer';
 import { serviceInitialState } from './state/serviceInitialState';
 
-import { HeaderText } from '../../../components/HeaderText';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useShowService, useUpdateService } from '../../../hooks/services';
-import { LoadingPage } from '../../../components/LoadingPage';
 
 const warningMessage = 'Preencha corretamente este campo';
 
@@ -43,7 +48,7 @@ let schema = yup.object().shape({
 
 export const UpdateOneServicePage = () => {
 	const { id } = useParams();
-	const { mutateAsync: createService } = useUpdateService();
+	const { mutateAsync: updateService } = useUpdateService();
 	const { data: service, isLoading } = useShowService(id);
 
 	const {
@@ -68,10 +73,27 @@ export const UpdateOneServicePage = () => {
 		[serviceState]
 	);
 
-	const [showModal, setShowModal] = useState(false);
+	const [showToast, setShowToast] = useState({
+		error: false,
+		success: false,
+	});
 
-	const handleCloseModal = () => {
-		setShowModal(false);
+	const handleCloseToastSuccess = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				success: false,
+			};
+		});
+	};
+
+	const handleCloseToastError = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				error: false,
+			};
+		});
 	};
 
 	const handleDisableName = () => {
@@ -109,10 +131,23 @@ export const UpdateOneServicePage = () => {
 	const onSubmit = async (data) => {
 		try {
 			const service = generateService(data);
-			await createService(service);
-			setShowModal(true);
+			await updateService({ id, data: service });
+
+			setShowToast((current) => {
+				return {
+					...current,
+					success: true,
+				};
+			});
 		} catch (error) {
-			throw new Error(error);
+			setShowToast((current) => {
+				return {
+					...current,
+					error: true,
+				};
+			});
+
+			console.error(error);
 		}
 	};
 
@@ -269,15 +304,18 @@ export const UpdateOneServicePage = () => {
 						onClick={handleSubmit(onSubmit)}
 						text="Alterar o cadastro"
 					/>
-
-					{showModal && (
-						<ModalSucess
-							handleClose={handleCloseModal}
-							text="O serviço foi atualizado com êxito!"
-						/>
-					)}
 				</Grid>
 			</Grid>
+
+			<ToastError
+				open={showToast.error}
+				handleClose={handleCloseToastError}
+			/>
+
+			<ToastSuccess
+				open={showToast.success}
+				handleClose={handleCloseToastSuccess}
+			/>
 		</ThemeProvider>
 	);
 };

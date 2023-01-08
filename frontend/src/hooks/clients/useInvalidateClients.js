@@ -4,7 +4,8 @@ export function useInvalidateClients() {
 	const queryClient = useQueryClient();
 
 	const onSuccessFn = () => {
-		queryClient.invalidateQueries(['listActiveClients', 'showClients']);
+		queryClient.invalidateQueries('listActiveClients');
+		queryClient.invalidateQueries('showClient');
 	};
 
 	return onSuccessFn;

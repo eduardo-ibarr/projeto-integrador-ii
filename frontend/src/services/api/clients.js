@@ -20,8 +20,8 @@ export const showClient = async (id) => {
 	return response.data;
 };
 
-export const updateClient = async ({ value, id }) => {
-	const response = await client.patch(`/clients/${id}`, value);
+export const updateClient = async ({ id, data }) => {
+	const response = await client.patch(`/clients/${id}`, data);
 
 	return response.data;
 };

@@ -6,6 +6,6 @@ export function useShowAttendance() {
 	return useQuery(
 		'showAttendance',
 		(id) => attendancesServices.showAttendance(id),
-		{ cacheTime: 0 }
+		{ cacheTime: 100 }
 	);
 }

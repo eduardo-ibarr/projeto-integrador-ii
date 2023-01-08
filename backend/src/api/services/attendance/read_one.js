@@ -15,7 +15,7 @@ module.exports = (req, res) => {
                     const index = data.findIndex(item => item);
 
                     if (index === -1) {
-                        res.status(204).send([]);
+                        res.status(200).json([]);
                     } else {
                         res.status(200).send(data);
                     }

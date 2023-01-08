@@ -19,7 +19,11 @@ export const listActiveAttendances = async () => {
 export const showAttendance = async (id) => {
 	const response = await client.get(`/attendances/${id}`);
 
-	return response.data;
+	if (response.data[0].isActive) {
+		return response.data;
+	}
+
+	return null;
 };
 
 export const updateAttendance = async ({ id, data }) => {

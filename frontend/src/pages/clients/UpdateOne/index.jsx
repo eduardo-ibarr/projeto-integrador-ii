@@ -20,14 +20,11 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { ModalSucess } from '../../../components/ModalSucess';
-import { SideMenu } from '../../../components/SideMenu';
+import { SideMenu, ToastError, ToastSuccess } from '../../../components';
 
 import { theme } from '../../../theme/theme';
 
-import { FooterSubmits } from '../../../components/FooterSubmits';
-import { HeaderText } from '../../../components/HeaderText';
-import { LoadingPage } from '../../../components/LoadingPage';
+import { FooterSubmits, HeaderText, LoadingPage } from '../../../components';
 
 import { clientReducer } from './state/clientReducer';
 import { clientInitialState } from './state/clientInitialState';
@@ -76,7 +73,28 @@ export const UpdateOneClientPage = () => {
 		[clientState]
 	);
 
-	const [showModal, setShowModal] = useState(false);
+	const [showToast, setShowToast] = useState({
+		error: false,
+		success: false,
+	});
+
+	const handleCloseToastSuccess = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				success: false,
+			};
+		});
+	};
+
+	const handleCloseToastError = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				error: false,
+			};
+		});
+	};
 
 	const handleDisableName = () => {
 		dispatchClient({
@@ -134,14 +152,22 @@ export const UpdateOneClientPage = () => {
 
 			await updateClient({ id, data: client });
 
-			setShowModal(true);
+			setShowToast((current) => {
+				return {
+					...current,
+					success: true,
+				};
+			});
 		} catch (error) {
+			setShowToast((current) => {
+				return {
+					...current,
+					error: true,
+				};
+			});
+
 			console.error(error);
 		}
-	};
-
-	const handleCloseModal = () => {
-		setShowModal(false);
 	};
 
 	useEffect(() => {
@@ -357,15 +383,18 @@ export const UpdateOneClientPage = () => {
 						onClick={handleSubmit(onSubmit)}
 						text="Alterar o cadastro"
 					/>
-
-					{showModal && (
-						<ModalSucess
-							handleClose={handleCloseModal}
-							text="O cliente foi atualizado com êxito!"
-						/>
-					)}
 				</Grid>
 			</Grid>
+
+			<ToastError
+				open={showToast.error}
+				handleClose={handleCloseToastError}
+			/>
+
+			<ToastSuccess
+				open={showToast.success}
+				handleClose={handleCloseToastSuccess}
+			/>
 		</ThemeProvider>
 	);
 };

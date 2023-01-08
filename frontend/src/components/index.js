@@ -1,0 +1,9 @@
+export { AlertDelete } from './AlertDelete';
+export { FooterButtons } from './FooterButtons';
+export { FooterSubmits } from './FooterSubmits';
+export { HeaderText } from './HeaderText';
+export { LoadingPage } from './LoadingPage';
+export { ToastSuccess } from './ToastSuccess';
+export { ToastError } from './ToastError';
+export { SideMenu } from './SideMenu';
+export { TablePaginationActions } from './TablePaginationActions';

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 
@@ -22,11 +22,13 @@ import { Stack } from '@mui/system';
 import { ThemeProvider } from '@mui/material/styles';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
-import { SideMenu } from '../../../components/SideMenu';
-import { LoadingPage } from '../../../components/LoadingPage';
-import { TablePaginationActions } from '../../../components/TablePaginationActions';
-import { FooterButtons } from '../../../components/FooterButtons';
-import { HeaderText } from '../../../components/HeaderText';
+import {
+	SideMenu,
+	LoadingPage,
+	TablePaginationActions,
+	FooterButtons,
+	HeaderText,
+} from '../../../components';
 
 import { theme } from '../../../theme/theme';
 
@@ -64,10 +66,16 @@ export const FindOneClientPage = () => {
 		setPage(0);
 	};
 
-	const emptyRows =
-		page > 0
-			? Math.max(0, (1 + page) * rowsPerPage - attendancesByClient.length)
-			: 0;
+	const emptyRows = useMemo(
+		() =>
+			page > 0
+				? Math.max(
+						0,
+						(1 + page) * rowsPerPage - attendancesByClient.length
+				  )
+				: 0,
+		[attendancesByClient]
+	);
 
 	const handleShowClientPhoneNumber = () => {
 		dispatchCanShow({
@@ -294,84 +302,82 @@ export const FindOneClientPage = () => {
 									  )
 									: attendancesByClient
 								).map((attendance, i) => {
-									if (attendance) {
-										return (
-											<TableRow key={i}>
-												<TableCell>
-													<Typography variant="subtitle1">
-														{
-															attendance
-																.services[0]
-																.name
-														}
-													</Typography>
-												</TableCell>
-												<TableCell align="left">
-													<Typography variant="subtitle1">
-														{moment(
-															attendance.date
-														).format(
-															'DD/MM/YYYY HH:mm'
-														)}
-													</Typography>
-												</TableCell>
-												<TableCell align="left">
-													<Typography variant="subtitle1">
-														{Number(
-															attendance.total
-														).toLocaleString(
-															'pt-BR',
-															{
-																style: 'currency',
-																currency: 'BRL',
-															}
-														)}
-													</Typography>
-												</TableCell>
-												<TableCell align="left">
-													<Typography variant="subtitle1">
-														{attendance.totalPaid
-															? Number(
-																	attendance.totalPaid
-															  ).toLocaleString(
-																	'pt-BR',
-																	{
-																		style: 'currency',
-																		currency:
-																			'BRL',
-																	}
-															  )
-															: 0}
-													</Typography>
-												</TableCell>
-												<TableCell align="left">
-													<Typography variant="subtitle1">
-														{attendance.isPaid ===
-														true
-															? 'Sim'
-															: 'Não'}
-													</Typography>
-												</TableCell>
-												<TableCell align="left">
-													<Typography variant="subtitle1">
-														{attendance.isDone ===
-														true
-															? 'Sim'
-															: 'Não'}
-													</Typography>
-												</TableCell>
-												<TableCell align="left">
-													<Typography variant="subtitle1">
-														{moment(
-															attendance.createdAt
-														).format(
-															'DD/MM/YYYY HH:mm'
-														)}
-													</Typography>
-												</TableCell>
-											</TableRow>
-										);
+									if (!attendance) {
+										return;
 									}
+
+									attendance = attendance[0];
+
+									return (
+										<TableRow key={i}>
+											<TableCell>
+												<Typography variant="subtitle1">
+													{attendance.services.map(
+														(service) =>
+															service.name
+													)}
+												</Typography>
+											</TableCell>
+											<TableCell align="left">
+												<Typography variant="subtitle1">
+													{moment(
+														attendance.date
+													).format(
+														'DD/MM/YYYY HH:mm'
+													)}
+												</Typography>
+											</TableCell>
+											<TableCell align="left">
+												<Typography variant="subtitle1">
+													{Number(
+														attendance.total
+													).toLocaleString('pt-BR', {
+														style: 'currency',
+														currency: 'BRL',
+													})}
+												</Typography>
+											</TableCell>
+											<TableCell align="left">
+												<Typography variant="subtitle1">
+													{attendance.totalPaid
+														? Number(
+																attendance.totalPaid
+														  ).toLocaleString(
+																'pt-BR',
+																{
+																	style: 'currency',
+																	currency:
+																		'BRL',
+																}
+														  )
+														: 0}
+												</Typography>
+											</TableCell>
+											<TableCell align="left">
+												<Typography variant="subtitle1">
+													{attendance.isPaid === true
+														? 'Sim'
+														: 'Não'}
+												</Typography>
+											</TableCell>
+											<TableCell align="left">
+												<Typography variant="subtitle1">
+													{attendance.isDone === true
+														? 'Sim'
+														: 'Não'}
+												</Typography>
+											</TableCell>
+											<TableCell align="left">
+												<Typography variant="subtitle1">
+													{moment(
+														attendance.createdAt
+													).format(
+														'DD/MM/YYYY HH:mm'
+													)}
+												</Typography>
+											</TableCell>
+										</TableRow>
+									);
 								})}
 
 								{emptyRows > 0 && (

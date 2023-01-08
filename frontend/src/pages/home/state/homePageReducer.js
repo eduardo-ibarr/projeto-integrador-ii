@@ -22,6 +22,16 @@ export const homePageReducer = (state, action) => {
 				...state,
 				openFinishModal: action.value,
 			};
+		case 'SET_TOAST_SUCCESS':
+			return {
+				...state,
+				openSuccessToast: action.value,
+			};
+		case 'SET_TOAST_ERROR':
+			return {
+				...state,
+				openErrorToast: action.value,
+			};
 		default:
 			break;
 	}

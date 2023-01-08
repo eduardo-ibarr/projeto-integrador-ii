@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { v4 } from 'uuid';
 import 'dayjs/locale/pt-br';
@@ -21,11 +20,14 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { theme } from '../../theme/theme';
 
-import { SideMenu } from '../../components/SideMenu/index';
-import { ModalSucess } from '../../components/ModalSucess/index';
-import { FooterSubmits } from '../../components/FooterSubmits';
-import { HeaderText } from '../../components/HeaderText';
-import { LoadingPage } from '../../components/LoadingPage';
+import {
+	SideMenu,
+	FooterSubmits,
+	HeaderText,
+	LoadingPage,
+	ToastSuccess,
+	ToastError,
+} from '../../components';
 
 import { useListActiveClients, useUpdateClient } from '../../hooks/clients';
 import { useListActiveServices } from '../../hooks/services';
@@ -40,14 +42,17 @@ export const AttendancePage = () => {
 	const { mutateAsync: updateClient } = useUpdateClient();
 	const { mutateAsync: createAttendance } = useCreateAttendance();
 
+	const [showToast, setShowToast] = useState({
+		error: false,
+		success: false,
+	});
+
 	const {
 		register,
 		handleSubmit,
 		control,
 		formState: { errors },
 	} = useForm();
-
-	const [showModal, setShowModal] = useState(false);
 
 	if (isLoadingClients || isLoadingServices) {
 		return <LoadingPage />;
@@ -56,16 +61,22 @@ export const AttendancePage = () => {
 	const clientsNames = clients.map((client) => client.name);
 	const servicesNames = services.map((service) => service.name);
 
-	const sendRequests = async ({ attendance, clientSelected }) => {
-		try {
-			await createAttendance(attendance);
-			await updateClient({
-				value: clientSelected,
-				id: clientSelected._id,
-			});
-		} catch (error) {
-			console.error(error);
-		}
+	const handleCloseToastSuccess = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				success: false,
+			};
+		});
+	};
+
+	const handleCloseToastError = () => {
+		setShowToast((current) => {
+			return {
+				...current,
+				error: false,
+			};
+		});
 	};
 
 	const generateAttendance = ({ clientSelected, data, serviceSelected }) => {
@@ -104,6 +115,32 @@ export const AttendancePage = () => {
 		};
 	};
 
+	const sendRequests = async ({ attendance, clientSelected }) => {
+		try {
+			await createAttendance(attendance);
+			await updateClient({
+				value: clientSelected,
+				id: clientSelected._id,
+			});
+
+			setShowToast((current) => {
+				return {
+					...current,
+					success: true,
+				};
+			});
+		} catch (error) {
+			setShowToast((current) => {
+				return {
+					...current,
+					error: true,
+				};
+			});
+
+			console.error(error);
+		}
+	};
+
 	const onSubmit = async (data) => {
 		const { clientSelected, serviceSelected } = findSelectedValuesOn(data);
 
@@ -116,12 +153,6 @@ export const AttendancePage = () => {
 		updateClientSelectedWithAttendance({ clientSelected, attendance });
 
 		await sendRequests({ attendance, clientSelected });
-
-		setShowModal(true);
-	};
-
-	const handleClose = () => {
-		setShowModal(false);
 	};
 
 	return (
@@ -284,12 +315,15 @@ export const AttendancePage = () => {
 				</Grid>
 			</Grid>
 
-			{showModal && (
-				<ModalSucess
-					handleClose={handleClose}
-					text="O atendimento foi criado com êxito!"
-				/>
-			)}
+			<ToastError
+				open={showToast.error}
+				handleClose={handleCloseToastError}
+			/>
+
+			<ToastSuccess
+				open={showToast.success}
+				handleClose={handleCloseToastSuccess}
+			/>
 		</ThemeProvider>
 	);
 };

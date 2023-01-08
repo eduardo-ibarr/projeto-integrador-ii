@@ -8,7 +8,7 @@ export function useUpdateClient() {
 
 	return useMutation(
 		'updateClient',
-		({ value, id }) => clientsService.updateClient({ value, id }),
+		({ id, data }) => clientsService.updateClient({ id, data }),
 		{
 			onSuccess: invalidateClients,
 		}

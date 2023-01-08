@@ -30,6 +30,7 @@ export const FooterSubmits = ({
 					<CircularProgress sx={{ color: 'primary.main' }} />
 				) : (
 					<Button
+						type="submit"
 						variant="contained"
 						onClick={onClick}
 						disabled={isDisabled}

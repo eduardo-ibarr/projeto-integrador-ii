@@ -4,10 +4,12 @@ import moment from 'moment';
 
 import { Grid, Paper, Stack, ThemeProvider, Typography } from '@mui/material';
 
-import { HeaderText } from '../../../components/HeaderText';
-import { SideMenu } from '../../../components/SideMenu';
-import { LoadingPage } from '../../../components/LoadingPage';
-import { FooterButtons } from '../../../components/FooterButtons';
+import {
+	HeaderText,
+	SideMenu,
+	LoadingPage,
+	FooterButtons,
+} from '../../../components';
 
 import { theme } from '../../../theme/theme';
 

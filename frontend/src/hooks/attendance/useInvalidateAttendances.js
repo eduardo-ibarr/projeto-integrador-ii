@@ -4,10 +4,9 @@ export function useInvalidateAttendances() {
 	const queryClient = useQueryClient();
 
 	const onSuccessFn = () => {
-		queryClient.invalidateQueries([
-			'listActiveAttendances',
-			'showAttendances',
-		]);
+		queryClient.invalidateQueries('listActiveAttendances');
+		queryClient.invalidateQueries('listActiveClients');
+		queryClient.invalidateQueries('showAttendance');
 	};
 
 	return onSuccessFn;

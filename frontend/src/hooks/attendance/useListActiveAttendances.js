@@ -6,6 +6,6 @@ export function useListActiveAttendances() {
 	return useQuery(
 		'listActiveAttendances',
 		attendancesServices.listActiveAttendances,
-		{ cacheTime: 0 }
+		{ cacheTime: 100 }
 	);
 }
