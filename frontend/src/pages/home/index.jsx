@@ -42,7 +42,6 @@ import {
 import { theme } from '../../theme/theme';
 
 import { modalStyle } from '../../theme/modalStyle';
-import './styles.css';
 
 import {
 	useListActiveAttendances,
@@ -93,7 +92,11 @@ export const Home = () => {
 
 	const hasSomeData = useMemo(
 		() =>
-			!isLoadingAttendances && !isLoadingClients && attendances && clients
+			!isLoadingAttendances &&
+			!isLoadingClients &&
+			attendances &&
+			clients,
+		[isLoadingAttendances, isLoadingClients, attendances, clients]
 	);
 
 	const attendancesForTheDay = useMemo(() => {
@@ -110,11 +113,14 @@ export const Home = () => {
 					const clientOfTheAttendance = clients.find(
 						(client) => client._id === attendance.client
 					);
-					const attendanceWithClientName = {
-						...attendance,
-						clientName: clientOfTheAttendance.name,
-					};
-					results.push(attendanceWithClientName);
+
+					if (clientOfTheAttendance) {
+						const attendanceWithClientName = {
+							...attendance,
+							clientName: clientOfTheAttendance.name,
+						};
+						results.push(attendanceWithClientName);
+					}
 				}
 			}
 			return results;
@@ -223,7 +229,10 @@ export const Home = () => {
 
 						<Grid container spacing={2}>
 							{attendancesForTheDay.map((attendance, i) => {
-								if (attendance.isDone === false) {
+								if (
+									attendance.isDone === false &&
+									attendance.clientName
+								) {
 									return (
 										<Grid item xs={3} key={i}>
 											<Card>
