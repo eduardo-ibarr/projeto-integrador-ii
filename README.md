@@ -14,9 +14,9 @@
 
 O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas nas seguintes tarefas:
 
-- [x] Adicionar hooks
-- [x] Refatorar os forms
-- [x] Diminuir as renderizações
+- [ ] Evitar conflitos de horários
+- [ ] Refatorar o backend
+- [ ] Redesenhar a página de mostrar um cliente/serviço
 
 ## 💻 Pré-requisitos
 
