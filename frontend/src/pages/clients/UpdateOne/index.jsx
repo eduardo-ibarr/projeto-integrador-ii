@@ -223,17 +223,11 @@ export const UpdateOneClientPage = () => {
 								</FormControl>
 
 								{errors?.name?.type === 'required' && (
-									<ErrorMessage
-										isUpdate
-										message="Esse campo é requerido."
-									/>
+									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
 								{errors?.name?.type === 'validate' && (
-									<ErrorMessage
-										isUpdate
-										message="Informe um nome válido."
-									/>
+									<ErrorMessage message="Informe um nome válido." />
 								)}
 							</Box>
 
@@ -267,17 +261,11 @@ export const UpdateOneClientPage = () => {
 								</FormControl>
 
 								{errors?.phoneNumber?.type === 'required' && (
-									<ErrorMessage
-										isUpdate
-										message="Esse campo é requerido."
-									/>
+									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
 								{errors?.phoneNumber?.type === 'validate' && (
-									<ErrorMessage
-										isUpdate
-										message="Informe um número de celular válido."
-									/>
+									<ErrorMessage message="Informe um número de celular válido." />
 								)}
 							</Box>
 
@@ -307,17 +295,11 @@ export const UpdateOneClientPage = () => {
 								</FormControl>
 
 								{errors?.cpf?.type === 'required' && (
-									<ErrorMessage
-										isUpdate
-										message="Esse campo é requerido."
-									/>
+									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
 								{errors?.cpf?.type === 'validate' && (
-									<ErrorMessage
-										isUpdate
-										message="Informe um CPF válido."
-									/>
+									<ErrorMessage message="Informe um CPF válido." />
 								)}
 							</Box>
 
@@ -347,17 +329,11 @@ export const UpdateOneClientPage = () => {
 								</FormControl>
 
 								{errors?.rg?.type === 'required' && (
-									<ErrorMessage
-										isUpdate
-										message="Esse campo é requerido."
-									/>
+									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
 								{errors?.rg?.type === 'validate' && (
-									<ErrorMessage
-										isUpdate
-										message="Informe um RG válido."
-									/>
+									<ErrorMessage message="Informe um RG válido." />
 								)}
 							</Box>
 
@@ -389,17 +365,11 @@ export const UpdateOneClientPage = () => {
 								</FormControl>
 
 								{errors?.address?.type === 'required' && (
-									<ErrorMessage
-										isUpdate
-										message="Esse campo é requerido."
-									/>
+									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
 								{errors?.address?.type === 'validate' && (
-									<ErrorMessage
-										isUpdate
-										message="Informe um endereço válido."
-									/>
+									<ErrorMessage message="Informe um endereço válido." />
 								)}
 							</Box>
 						</Stack>

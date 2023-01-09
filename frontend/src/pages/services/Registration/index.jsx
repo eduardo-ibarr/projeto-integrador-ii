@@ -157,11 +157,11 @@ export const ServiceRegistrationPage = () => {
 									})}
 								/>
 
-								{errors?.name?.type === 'required' && (
+								{errors?.price?.type === 'required' && (
 									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
-								{errors?.name?.type === 'validate' && (
+								{errors?.price?.type === 'validate' && (
 									<ErrorMessage message="Informe um preço válido." />
 								)}
 							</FormControl>
@@ -180,11 +180,11 @@ export const ServiceRegistrationPage = () => {
 									})}
 								/>
 
-								{errors?.name?.type === 'required' && (
+								{errors?.description?.type === 'required' && (
 									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
-								{errors?.name?.type === 'validate' && (
+								{errors?.description?.type === 'validate' && (
 									<ErrorMessage message="Informe uma descrição válida." />
 								)}
 							</FormControl>
