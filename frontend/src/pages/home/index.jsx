@@ -429,7 +429,6 @@ export const Home = () => {
 
 											{!!errors.totalPaid && (
 												<ErrorMessage
-													isUpdate
 													message="Preencha com numeros maiores
 													que zero."
 												/>

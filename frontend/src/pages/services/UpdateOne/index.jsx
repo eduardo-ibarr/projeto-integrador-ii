@@ -195,17 +195,11 @@ export const UpdateOneServicePage = () => {
 								</FormControl>
 
 								{errors?.name?.type === 'required' && (
-									<ErrorMessage
-										isUpdate
-										message="Esse campo é requerido."
-									/>
+									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
 								{errors?.name?.type === 'validate' && (
-									<ErrorMessage
-										isUpdate
-										message="Informe um nome válido."
-									/>
+									<ErrorMessage message="Informe um nome válido." />
 								)}
 							</Box>
 
@@ -241,18 +235,12 @@ export const UpdateOneServicePage = () => {
 									<TooltipEdit onClick={handleDisablePrice} />
 								</FormControl>
 
-								{errors?.name?.type === 'required' && (
-									<ErrorMessage
-										isUpdate
-										message="Esse campo é requerido."
-									/>
+								{errors?.price?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
-								{errors?.name?.type === 'validate' && (
-									<ErrorMessage
-										isUpdate
-										message="Informe um preço válido."
-									/>
+								{errors?.price?.type === 'validate' && (
+									<ErrorMessage message="Informe um preço válido." />
 								)}
 							</Box>
 
@@ -285,18 +273,12 @@ export const UpdateOneServicePage = () => {
 									/>
 								</FormControl>
 
-								{errors?.name?.type === 'required' && (
-									<ErrorMessage
-										isUpdate
-										message="Esse campo é requerido."
-									/>
+								{errors?.description?.type === 'required' && (
+									<ErrorMessage message="Esse campo é requerido." />
 								)}
 
-								{errors?.name?.type === 'validate' && (
-									<ErrorMessage
-										isUpdate
-										message="Informe uma descrição válida."
-									/>
+								{errors?.description?.type === 'validate' && (
+									<ErrorMessage message="Informe uma descrição válida." />
 								)}
 							</Box>
 						</Stack>

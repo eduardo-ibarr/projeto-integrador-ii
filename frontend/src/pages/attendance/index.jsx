@@ -193,10 +193,7 @@ export const AttendancePage = () => {
 										)}
 									/>
 									{!!errors.client && (
-										<ErrorMessage
-											isUpdate
-											message="O campo é obrigatório."
-										/>
+										<ErrorMessage message="O campo é obrigatório." />
 									)}
 								</FormControl>
 
@@ -219,10 +216,7 @@ export const AttendancePage = () => {
 									/>
 
 									{!!errors.service && (
-										<ErrorMessage
-											isUpdate
-											message="O campo é obrigatório."
-										/>
+										<ErrorMessage message="O campo é obrigatório." />
 									)}
 								</FormControl>
 							</Box>
@@ -252,10 +246,7 @@ export const AttendancePage = () => {
 									/>
 
 									{!!errors.date && (
-										<ErrorMessage
-											isUpdate
-											message="O campo é obrigatório."
-										/>
+										<ErrorMessage message="O campo é obrigatório." />
 									)}
 								</FormControl>
 
@@ -276,10 +267,7 @@ export const AttendancePage = () => {
 									/>
 
 									{!!errors.time && (
-										<ErrorMessage
-											isUpdate
-											message="O campo é obrigatório."
-										/>
+										<ErrorMessage message="O campo é obrigatório." />
 									)}
 								</FormControl>
 							</Box>
