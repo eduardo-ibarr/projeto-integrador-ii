@@ -15,28 +15,28 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const allowedOrigins = [
-    'https://web-pi-ii.herokuapp.com',
-    'http://localhost:3000',
+  'https://web-pi-ii.herokuapp.com',
+  'http://localhost:3000',
 ];
 
 
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin) {
-            return callback(null, true);
-        }
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
 
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not ' +
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not ' +
                         'allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
+      return callback(new Error(msg), false);
+    }
         
-        return callback(null, true);
-    },
-    methods: 'GET, PUT, POST, DELETE, PATCH',
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    return callback(null, true);
+  },
+  methods: 'GET, PUT, POST, DELETE, PATCH',
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
 // app.use('/api', authRoutes);
@@ -45,5 +45,5 @@ app.use('/', serviceRoutes);
 app.use('/', attendanceRoutes);
 
 app.listen(PORT, () => {
-    console.log(`Connecting on port ${PORT}`);
+  console.log(`Connecting on port ${PORT}`);
 });
