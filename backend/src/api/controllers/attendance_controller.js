@@ -1,29 +1,113 @@
-const createService = require('../services/attendance/create');
-const readService = require('../services/attendance/read');
-const readOneService = require('../services/attendance/read_one');
-const updateService = require('../services/attendance/update');
-const deleteService = require('../services/attendance/delete');
+module.exports = class AttendanceController {
+  attendanceServices;
 
-class Attendance {
-  create(req, res) {
-    createService(req, res);
+  constructor(attendanceServices) {
+    this.attendanceServices = attendanceServices;
   }
 
-  read(req, res) {
-    readService(req, res);
+  verifyBody(req, res, next) {
+    const {
+      _id,
+      client,
+      createdAt,
+      date,
+      isActive,
+      services,
+      isDone,
+      isPaid,
+      total
+    } = req.body;
+
+    const data = {
+      _id,
+      client,
+      createdAt,
+      date,
+      isActive,
+      services,
+      isDone,
+      isPaid,
+      total
+    };
+
+    const isMissingData = Object.values(data).some(value => value === undefined);
+
+    if (isMissingData) {
+      return res.status(400).send({
+        message: 'Missing data.'
+      });
+    }
+
+    next(data);
   }
 
-  readOne(req, res) {
-    readOneService(req, res);
+  store(req, res) {
+    this.verifyBody(req, res, (data) => {
+      try {
+        this.attendanceServices.create(data);
+
+        return res.status(201).send({
+          message: 'Attendance created successfully.'
+        });
+      } catch (error) {
+        return res.status(500).send({
+          message: 'Error creating attendance.'
+        });
+      }
+    });
+  }
+
+  list(req, res) {
+    try {
+      const attendances = this.attendanceServices.read();
+
+      return res.status(200).send(attendances);
+    } catch (error) {
+      return res.status(500).send({
+        message: 'Error reading attendances.'
+      });
+    }
+  }
+
+  show(req, res) {
+    try {
+      const attendance = this.attendanceServices.readOne(req.params.id);
+
+      return res.status(200).send(attendance);
+    } catch (error) {
+      return res.status(500).send({
+        message: 'Error reading attendance.'
+      });
+    }
   }
 
   update(req, res) {
-    updateService(req, res);
+    this.verifyBody(req, res, (data) => {
+      try {
+        this.attendanceServices.update(req.params.id, data);
+
+        return res.status(200).send({
+          message: 'Attendance updated successfully.'
+        });
+      } catch (error) {
+        return res.status(500).send({
+          message: 'Error updating attendance.'
+        });
+      }
+    });
   }
 
   delete(req, res) {
-    deleteService(req, res);
-  }
-}
+    try {
+      this.attendanceServices.delete(req.params.id);
 
-module.exports = new Attendance;
+      return res.status(200).send({
+        message: 'Attendance deleted successfully.'
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: 'Error deleting attendance.'
+      });
+    }
+  }
+};

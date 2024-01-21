@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
-const { unauthorized } = require('../../constants/status_error');
+const { unauthorized } = require('../../config/status_error');
 const blacklist = require('../../utils/blacklist');
-
-require('dotenv').config();
+const { SECRET } = require('../../config/environment');
 
 const verifyJWT = (req, res, next) => {
   const token = req.headers['x-acess-token'];
@@ -12,8 +11,7 @@ const verifyJWT = (req, res, next) => {
     return res.status(401).send(unauthorized);
   }
 
-  // eslint-disable-next-line no-undef
-  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+  jwt.verify(token, SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).send(unauthorized);
     }
