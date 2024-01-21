@@ -1,16 +1,15 @@
 const router = require('express').Router();
-//const auth = require('../api/auth/verify_jwt');
 
-const ClientService = require('../api/services/client_services');
-const ClientController = require('../api/controllers/client_controller');
+const ClientService = require('../services/client_services');
+const ClientController = require('../controllers/client_controller');
 
 const clientService = new ClientService();
 const clientController = new ClientController(clientService);
 
-router.get('/clients', /*auth, */clientController.list);
-router.get('/clients/:id', /*auth, */clientController.show);
-router.post('/clients', /*auth, */clientController.store);
-router.patch('/clients/:id', /*auth, */clientController.update);
-router.delete('/clients/:id', /*auth, */clientController.delete);
+router.get('/clients', clientController.list);
+router.get('/clients/:id', clientController.show);
+router.post('/clients', clientController.store);
+router.patch('/clients/:id', clientController.update);
+router.delete('/clients/:id', clientController.delete);
 
 module.exports = router;

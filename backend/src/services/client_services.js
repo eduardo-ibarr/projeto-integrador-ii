@@ -1,4 +1,4 @@
-const ClientSchema = require('../../models/client_schema');
+const ClientSchema = require('../models/client_schema');
 
 module.exports = class ClientServices {
   create(data) {

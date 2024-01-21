@@ -4,15 +4,14 @@ const { default: helmet } = require('helmet');
 const express = require('express');
 const cors = require('cors');
 
-const app = express();
-
-// const authRoutes = require('./routes/auth_routes');
 const clientRoutes = require('./routes/client_routes');
 const workRoutes = require('./routes/work_routes');
 const attendanceRoutes = require('./routes/attendance_routes');
 const connection = require('./database/connection');
 
 const { PORT } = require('./config/environment');
+
+const app = express();
 
 app.use(helmet());
 app.use(express.json());
@@ -43,7 +42,6 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
-// app.use('/api', authRoutes);
 app.use('/', clientRoutes);
 app.use('/', workRoutes);
 app.use('/', attendanceRoutes);

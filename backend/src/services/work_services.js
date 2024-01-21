@@ -1,4 +1,4 @@
-const WorkSchema = require('../../models/work_schema');
+const WorkSchema = require('../models/work_schema');
 
 module.exports = class WorkServices {
   create(data) {

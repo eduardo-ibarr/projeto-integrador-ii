@@ -1,4 +1,4 @@
-const AttendanceSchema = require('../../models/attendance_schema');
+const AttendanceSchema = require('../models/attendance_schema');
 
 module.exports = class AttendanceService {
   create(data) {
