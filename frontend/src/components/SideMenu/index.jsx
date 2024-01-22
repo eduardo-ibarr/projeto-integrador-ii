@@ -54,9 +54,7 @@ export const SideMenu = ({
 					<ListItem
 						disablePadding
 						sx={{
-							backgroundColor: activeHome
-								? 'color.lightBlue'
-								: '',
+							backgroundColor: activeHome ? 'color.lightBlue' : '',
 						}}
 					>
 						<Link
@@ -70,10 +68,7 @@ export const SideMenu = ({
 								<ListItemIcon sx={{ color: 'color.white' }}>
 									<HomeIcon />
 								</ListItemIcon>
-								<ListItemText
-									primary="Home"
-									sx={{ color: 'color.white' }}
-								/>
+								<ListItemText primary="Home" sx={{ color: 'color.white' }} />
 							</ListItemButton>
 						</Link>
 					</ListItem>
@@ -82,9 +77,7 @@ export const SideMenu = ({
 					<ListItem
 						disablePadding
 						sx={{
-							backgroundColor: activeClients
-								? 'color.lightBlue'
-								: '',
+							backgroundColor: activeClients ? 'color.lightBlue' : '',
 						}}
 					>
 						<Link
@@ -110,9 +103,7 @@ export const SideMenu = ({
 					<ListItem
 						disablePadding
 						sx={{
-							backgroundColor: activeServices
-								? 'color.lightBlue'
-								: '',
+							backgroundColor: activeServices ? 'color.lightBlue' : '',
 						}}
 					>
 						<Link
@@ -138,9 +129,7 @@ export const SideMenu = ({
 					<ListItem
 						disablePadding
 						sx={{
-							backgroundColor: activeAttendances
-								? 'color.lightBlue'
-								: '',
+							backgroundColor: activeAttendances ? 'color.lightBlue' : '',
 						}}
 					>
 						<Link

@@ -69,10 +69,7 @@ export const FindOneClientPage = () => {
 	const emptyRows = useMemo(
 		() =>
 			page > 0
-				? Math.max(
-						0,
-						(1 + page) * rowsPerPage - attendancesByClient.length
-				  )
+				? Math.max(0, (1 + page) * rowsPerPage - attendancesByClient.length)
 				: 0,
 		[attendancesByClient]
 	);
@@ -156,10 +153,7 @@ export const FindOneClientPage = () => {
 									)}
 								</Typography>
 
-								<Tooltip
-									title="Mostrar"
-									sx={{ marginLeft: '10px' }}
-								>
+								<Tooltip title="Mostrar" sx={{ marginLeft: '10px' }}>
 									<IconButton
 										size="small"
 										onClick={handleShowClientPhoneNumber}
@@ -171,22 +165,11 @@ export const FindOneClientPage = () => {
 
 							<Box sx={{ display: 'flex' }}>
 								<Typography variant="h6">
-									CPF:{' '}
-									{canShowState.cpf ? (
-										<b>{client[0].cpf}</b>
-									) : (
-										'oculto'
-									)}
+									CPF: {canShowState.cpf ? <b>{client[0].cpf}</b> : 'oculto'}
 								</Typography>
 
-								<Tooltip
-									title="Mostrar"
-									sx={{ marginLeft: '10px' }}
-								>
-									<IconButton
-										size="small"
-										onClick={handleShowClientCPF}
-									>
+								<Tooltip title="Mostrar" sx={{ marginLeft: '10px' }}>
+									<IconButton size="small" onClick={handleShowClientCPF}>
 										<RemoveRedEyeIcon fontSize="inherit" />
 									</IconButton>
 								</Tooltip>
@@ -194,22 +177,11 @@ export const FindOneClientPage = () => {
 
 							<Box sx={{ display: 'flex' }}>
 								<Typography variant="h6">
-									RG:{' '}
-									{canShowState.rg ? (
-										<b>{client[0].rg}</b>
-									) : (
-										'oculto'
-									)}
+									RG: {canShowState.rg ? <b>{client[0].rg}</b> : 'oculto'}
 								</Typography>
 
-								<Tooltip
-									title="Mostrar"
-									sx={{ marginLeft: '10px' }}
-								>
-									<IconButton
-										size="small"
-										onClick={handleShowClientRG}
-									>
+								<Tooltip title="Mostrar" sx={{ marginLeft: '10px' }}>
+									<IconButton size="small" onClick={handleShowClientRG}>
 										<RemoveRedEyeIcon fontSize="inherit" />
 									</IconButton>
 								</Tooltip>
@@ -221,73 +193,43 @@ export const FindOneClientPage = () => {
 
 							<Typography variant="h6">
 								Cliente criado em:{' '}
-								<b>
-									{moment(client[0].createdAt).format(
-										'DD/MM/YYYY HH:mm'
-									)}
-								</b>
+								<b>{moment(client[0].createdAt).format('DD/MM/YYYY HH:mm')}</b>
 							</Typography>
 
 							{client[0].updatedAt && (
 								<Typography variant="h6">
 									Cliente alterado por último em:{' '}
 									<b>
-										{moment(client[0].updatedAt).format(
-											'DD/MM/YYYY HH:mm'
-										)}
+										{moment(client[0].updatedAt).format('DD/MM/YYYY HH:mm')}
 									</b>
 								</Typography>
 							)}
 						</Paper>
 					</Stack>
 
-					<TableContainer
-						component={Paper}
-						sx={{ marginTop: '20px' }}
-					>
+					<TableContainer component={Paper} sx={{ marginTop: '20px' }}>
 						<Table sx={{ minWidth: 500 }}>
 							<TableHead sx={{ backgroundColor: 'primary.main' }}>
 								<TableRow>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Serviço
 									</TableCell>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Data
 									</TableCell>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Total
 									</TableCell>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Total pago
 									</TableCell>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Pago
 									</TableCell>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Finalizado
 									</TableCell>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Criado em
 									</TableCell>
 								</TableRow>
@@ -310,26 +252,17 @@ export const FindOneClientPage = () => {
 										<TableRow key={i}>
 											<TableCell>
 												<Typography variant="subtitle1">
-													{attendance.services.map(
-														(service) =>
-															service.name
-													)}
+													{attendance.services.map((service) => service.name)}
 												</Typography>
 											</TableCell>
 											<TableCell align="left">
 												<Typography variant="subtitle1">
-													{moment(
-														attendance.date
-													).format(
-														'DD/MM/YYYY HH:mm'
-													)}
+													{moment(attendance.date).format('DD/MM/YYYY HH:mm')}
 												</Typography>
 											</TableCell>
 											<TableCell align="left">
 												<Typography variant="subtitle1">
-													{Number(
-														attendance.total
-													).toLocaleString('pt-BR', {
+													{Number(attendance.total).toLocaleString('pt-BR', {
 														style: 'currency',
 														currency: 'BRL',
 													})}
@@ -338,14 +271,11 @@ export const FindOneClientPage = () => {
 											<TableCell align="left">
 												<Typography variant="subtitle1">
 													{attendance.totalPaid
-														? Number(
-																attendance.totalPaid
-														  ).toLocaleString(
+														? Number(attendance.totalPaid).toLocaleString(
 																'pt-BR',
 																{
 																	style: 'currency',
-																	currency:
-																		'BRL',
+																	currency: 'BRL',
 																}
 														  )
 														: 0}
@@ -353,23 +283,17 @@ export const FindOneClientPage = () => {
 											</TableCell>
 											<TableCell align="left">
 												<Typography variant="subtitle1">
-													{attendance.isPaid === true
-														? 'Sim'
-														: 'Não'}
+													{attendance.isPaid === true ? 'Sim' : 'Não'}
 												</Typography>
 											</TableCell>
 											<TableCell align="left">
 												<Typography variant="subtitle1">
-													{attendance.isDone === true
-														? 'Sim'
-														: 'Não'}
+													{attendance.isDone === true ? 'Sim' : 'Não'}
 												</Typography>
 											</TableCell>
 											<TableCell align="left">
 												<Typography variant="subtitle1">
-													{moment(
-														attendance.createdAt
-													).format(
+													{moment(attendance.createdAt).format(
 														'DD/MM/YYYY HH:mm'
 													)}
 												</Typography>
@@ -379,9 +303,7 @@ export const FindOneClientPage = () => {
 								})}
 
 								{emptyRows > 0 && (
-									<TableRow
-										style={{ height: 53 * emptyRows }}
-									>
+									<TableRow style={{ height: 53 * emptyRows }}>
 										<TableCell colSpan={6} />
 									</TableRow>
 								)}
@@ -389,12 +311,7 @@ export const FindOneClientPage = () => {
 						</Table>
 
 						<TablePagination
-							rowsPerPageOptions={[
-								5,
-								10,
-								25,
-								{ label: 'Todos', value: -1 },
-							]}
+							rowsPerPageOptions={[5, 10, 25, { label: 'Todos', value: -1 }]}
 							count={attendancesByClient.length}
 							component="div"
 							rowsPerPage={rowsPerPage}

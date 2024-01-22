@@ -29,15 +29,8 @@ export const TablePaginationActions = (props) => {
 
 	return (
 		<Box sx={{ flexShrink: 0, ml: 2.5 }}>
-			<IconButton
-				onClick={handleFirstPageButtonClick}
-				disabled={page === 0}
-			>
-				{theme.direction === 'rtl' ? (
-					<LastPageIcon />
-				) : (
-					<FirstPageIcon />
-				)}
+			<IconButton onClick={handleFirstPageButtonClick} disabled={page === 0}>
+				{theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
 			</IconButton>
 			<IconButton onClick={handleBackButtonClick} disabled={page === 0}>
 				{theme.direction === 'rtl' ? (
@@ -60,11 +53,7 @@ export const TablePaginationActions = (props) => {
 				onClick={handleLastPageButtonClick}
 				disabled={page >= Math.ceil(count / rowsPerPage) - 1}
 			>
-				{theme.direction === 'rtl' ? (
-					<FirstPageIcon />
-				) : (
-					<LastPageIcon />
-				)}
+				{theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
 			</IconButton>
 		</Box>
 	);

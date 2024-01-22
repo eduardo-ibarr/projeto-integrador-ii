@@ -131,8 +131,7 @@ export const ClientRegistrationPage = () => {
 									error={!!errors?.name}
 									{...register('name', {
 										required: true,
-										validate: (value) =>
-											validateText(value),
+										validate: (value) => validateText(value),
 									})}
 								/>
 
@@ -154,8 +153,7 @@ export const ClientRegistrationPage = () => {
 									error={!!errors?.phoneNumber}
 									{...register('phoneNumber', {
 										required: true,
-										validate: (value) =>
-											validatePhoneNumber(value),
+										validate: (value) => validatePhoneNumber(value),
 									})}
 								/>
 
@@ -221,8 +219,7 @@ export const ClientRegistrationPage = () => {
 									error={!!errors?.address}
 									{...register('address', {
 										required: true,
-										validate: (value) =>
-											validateText(value),
+										validate: (value) => validateText(value),
 									})}
 								/>
 
@@ -247,10 +244,7 @@ export const ClientRegistrationPage = () => {
 				</Grid>
 			</Grid>
 
-			<ToastError
-				open={showToast.error}
-				handleClose={handleCloseToastError}
-			/>
+			<ToastError open={showToast.error} handleClose={handleCloseToastError} />
 
 			<ToastSuccess
 				open={showToast.success}

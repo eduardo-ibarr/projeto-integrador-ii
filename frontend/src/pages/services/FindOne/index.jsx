@@ -51,34 +51,27 @@ export const FindOneServicePage = () => {
 							}}
 						>
 							<Typography variant="h6">
-								Nome do serviço:{' '}
-								<strong>{service[0].name}</strong>
+								Nome do serviço: <strong>{service[0].name}</strong>
 							</Typography>
 
 							<Typography variant="h6">
 								Preço:{' '}
 								<strong>
-									{Number(service[0].price).toLocaleString(
-										'pt-BR',
-										{
-											style: 'currency',
-											currency: 'BRL',
-										}
-									)}
+									{Number(service[0].price).toLocaleString('pt-BR', {
+										style: 'currency',
+										currency: 'BRL',
+									})}
 								</strong>
 							</Typography>
 
 							<Typography variant="h6">
-								Descrição:{' '}
-								<strong>{service[0].description}</strong>
+								Descrição: <strong>{service[0].description}</strong>
 							</Typography>
 
 							<Typography variant="h6">
 								Serviço criado em:{' '}
 								<strong>
-									{moment(service[0].createdAt).format(
-										'DD/MM/YYYY HH:mm'
-									)}
+									{moment(service[0].createdAt).format('DD/MM/YYYY HH:mm')}
 								</strong>
 							</Typography>
 
@@ -86,9 +79,7 @@ export const FindOneServicePage = () => {
 								<Typography variant="h6">
 									Serviço alterado por último em:{' '}
 									<strong>
-										{moment(service[0].updatedAt).format(
-											'DD/MM/YYYY HH:mm'
-										)}
+										{moment(service[0].updatedAt).format('DD/MM/YYYY HH:mm')}
 									</strong>
 								</Typography>
 							)}

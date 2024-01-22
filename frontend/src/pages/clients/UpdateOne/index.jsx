@@ -208,8 +208,7 @@ export const UpdateOneClientPage = () => {
 									<TextField
 										{...register('name', {
 											required: true,
-											validate: (value) =>
-												validateText(value),
+											validate: (value) => validateText(value),
 										})}
 										fullWidth
 										id="outlined-basic"
@@ -244,20 +243,15 @@ export const UpdateOneClientPage = () => {
 										id="outlined-basic"
 										label="Número de celular com DDD"
 										variant="outlined"
-										disabled={
-											clientState.phoneNumber.disabled
-										}
+										disabled={clientState.phoneNumber.disabled}
 										{...register('phoneNumber', {
 											required: true,
-											validate: (value) =>
-												validatePhoneNumber(value),
+											validate: (value) => validatePhoneNumber(value),
 										})}
 										error={!!errors?.phoneNumber}
 									/>
 
-									<TooltipEdit
-										onClick={handleDisablePhoneNumber}
-									/>
+									<TooltipEdit onClick={handleDisablePhoneNumber} />
 								</FormControl>
 
 								{errors?.phoneNumber?.type === 'required' && (
@@ -285,8 +279,7 @@ export const UpdateOneClientPage = () => {
 										variant="outlined"
 										{...register('cpf', {
 											required: true,
-											validate: (value) =>
-												validateCPF(value),
+											validate: (value) => validateCPF(value),
 										})}
 										error={!!errors?.cpf}
 									/>
@@ -319,8 +312,7 @@ export const UpdateOneClientPage = () => {
 										variant="outlined"
 										{...register('rg', {
 											required: true,
-											validate: (value) =>
-												validateRG(value),
+											validate: (value) => validateRG(value),
 										})}
 										error={!!errors?.rg}
 									/>
@@ -354,14 +346,11 @@ export const UpdateOneClientPage = () => {
 										error={!!errors?.address}
 										{...register('address', {
 											required: true,
-											validate: (value) =>
-												validateText(value),
+											validate: (value) => validateText(value),
 										})}
 									/>
 
-									<TooltipEdit
-										onClick={handleDisableAddress}
-									/>
+									<TooltipEdit onClick={handleDisableAddress} />
 								</FormControl>
 
 								{errors?.address?.type === 'required' && (
@@ -384,10 +373,7 @@ export const UpdateOneClientPage = () => {
 				</Grid>
 			</Grid>
 
-			<ToastError
-				open={showToast.error}
-				handleClose={handleCloseToastError}
-			/>
+			<ToastError open={showToast.error} handleClose={handleCloseToastError} />
 
 			<ToastSuccess
 				open={showToast.success}

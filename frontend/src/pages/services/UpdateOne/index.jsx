@@ -186,8 +186,7 @@ export const UpdateOneServicePage = () => {
 										error={!!errors?.name}
 										{...register('name', {
 											required: true,
-											validate: (value) =>
-												validateText(value),
+											validate: (value) => validateText(value),
 										})}
 									/>
 
@@ -220,15 +219,12 @@ export const UpdateOneServicePage = () => {
 										error={!!errors?.price}
 										InputProps={{
 											startAdornment: (
-												<InputAdornment position="start">
-													R$
-												</InputAdornment>
+												<InputAdornment position="start">R$</InputAdornment>
 											),
 										}}
 										{...register('price', {
 											required: true,
-											validate: (value) =>
-												validatePrice(value),
+											validate: (value) => validatePrice(value),
 										})}
 									/>
 
@@ -256,21 +252,16 @@ export const UpdateOneServicePage = () => {
 										fullWidth
 										id="outlined-basic"
 										label="Descrição"
-										disabled={
-											serviceState.description.disabled
-										}
+										disabled={serviceState.description.disabled}
 										variant="outlined"
 										error={!!errors?.description}
 										{...register('description', {
 											required: true,
-											validate: (value) =>
-												validateText(value),
+											validate: (value) => validateText(value),
 										})}
 									/>
 
-									<TooltipEdit
-										onClick={handleDisableDescription}
-									/>
+									<TooltipEdit onClick={handleDisableDescription} />
 								</FormControl>
 
 								{errors?.description?.type === 'required' && (
@@ -294,10 +285,7 @@ export const UpdateOneServicePage = () => {
 				</Grid>
 			</Grid>
 
-			<ToastError
-				open={showToast.error}
-				handleClose={handleCloseToastError}
-			/>
+			<ToastError open={showToast.error} handleClose={handleCloseToastError} />
 
 			<ToastSuccess
 				open={showToast.success}

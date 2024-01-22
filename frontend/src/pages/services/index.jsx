@@ -122,9 +122,7 @@ export const ServicePage = () => {
 	}
 
 	const filteredServices = services.filter((service) => {
-		return service.name
-			.toLowerCase()
-			.includes(servicesToSearch.toLowerCase());
+		return service.name.toLowerCase().includes(servicesToSearch.toLowerCase());
 	});
 
 	return (
@@ -164,22 +162,13 @@ export const ServicePage = () => {
 						<Table sx={{ minWidth: 500 }}>
 							<TableHead sx={{ backgroundColor: 'primary.main' }}>
 								<TableRow>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Nome
 									</TableCell>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Preço
 									</TableCell>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Criado em
 									</TableCell>
 									<TableCell />
@@ -199,62 +188,36 @@ export const ServicePage = () => {
 									: services
 								).map((service, i) => (
 									<TableRow key={i}>
-										<TableCell
-											sx={{ color: 'text.primary' }}
-										>
+										<TableCell sx={{ color: 'text.primary' }}>
 											<Typography variant="subtitle1">
 												{service.name}
 											</Typography>
 										</TableCell>
-										<TableCell
-											align="left"
-											sx={{ color: 'text.primary' }}
-										>
+										<TableCell align="left" sx={{ color: 'text.primary' }}>
 											<Typography variant="subtitle1">
-												{service.price.toLocaleString(
-													'pt-BR',
-													{
-														style: 'currency',
-														currency: 'BRL',
-													}
-												)}
+												{service.price.toLocaleString('pt-BR', {
+													style: 'currency',
+													currency: 'BRL',
+												})}
 											</Typography>
 										</TableCell>
-										<TableCell
-											align="left"
-											sx={{ color: 'text.primary' }}
-										>
+										<TableCell align="left" sx={{ color: 'text.primary' }}>
 											<Typography variant="subtitle1">
-												{moment(
-													service.createdAt
-												).format('DD/MM/YYYY HH:mm')}
+												{moment(service.createdAt).format('DD/MM/YYYY HH:mm')}
 											</Typography>
 										</TableCell>
-										<TableCell
-											align="center"
-											sx={{ color: 'text.primary' }}
-										>
-											<Link
-												to={`/servicos/${service._id}`}
-											>
-												<Tooltip
-													title="Ver mais"
-													sx={{ marginRight: '10px' }}
-												>
+										<TableCell align="center" sx={{ color: 'text.primary' }}>
+											<Link to={`/servicos/${service._id}`}>
+												<Tooltip title="Ver mais" sx={{ marginRight: '10px' }}>
 													<IconButton>
 														<RemoveRedEyeIcon />
 													</IconButton>
 												</Tooltip>
 											</Link>
-											<Tooltip
-												title="Excluir"
-												sx={{ color: 'primary.red' }}
-											>
+											<Tooltip title="Excluir" sx={{ color: 'primary.red' }}>
 												<IconButton
 													onClick={() => {
-														setServiceToInactivate(
-															service._id
-														);
+														setServiceToInactivate(service._id);
 														setShowModal(true);
 													}}
 												>
@@ -266,23 +229,20 @@ export const ServicePage = () => {
 								))}
 
 								{emptyRows > 0 && (
-									<TableRow
-										style={{ height: 53 * emptyRows }}
-									>
+									<TableRow style={{ height: 53 * emptyRows }}>
 										<TableCell colSpan={6} />
 									</TableRow>
 								)}
 
-								{filteredServices.length === 0 &&
-									services.length > 0 && (
-										<Typography
-											sx={{
-												margin: '25px 0px 0px 20px',
-											}}
-										>
-											Nenhum serviço foi encontrado.
-										</Typography>
-									)}
+								{filteredServices.length === 0 && services.length > 0 && (
+									<Typography
+										sx={{
+											margin: '25px 0px 0px 20px',
+										}}
+									>
+										Nenhum serviço foi encontrado.
+									</Typography>
+								)}
 
 								{services.length === 0 && (
 									<Typography
@@ -296,12 +256,7 @@ export const ServicePage = () => {
 							</TableBody>
 						</Table>
 						<TablePagination
-							rowsPerPageOptions={[
-								5,
-								10,
-								25,
-								{ label: 'Todos', value: -1 },
-							]}
+							rowsPerPageOptions={[5, 10, 25, { label: 'Todos', value: -1 }]}
 							count={services.length}
 							component="div"
 							rowsPerPage={rowsPerPage}
@@ -328,10 +283,7 @@ export const ServicePage = () => {
 				text="serviço"
 			/>
 
-			<ToastError
-				open={showToast.error}
-				handleClose={handleCloseToastError}
-			/>
+			<ToastError open={showToast.error} handleClose={handleCloseToastError} />
 
 			<ToastSuccess
 				open={showToast.success}

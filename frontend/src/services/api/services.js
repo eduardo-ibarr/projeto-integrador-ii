@@ -9,9 +9,7 @@ export const createNewService = async (values) => {
 export const listActiveServices = async () => {
 	const response = await client.get('/services');
 
-	const activeServices = response.data.filter(
-		(services) => services.isActive
-	);
+	const activeServices = response.data.filter((services) => services.isActive);
 
 	return activeServices;
 };

@@ -57,12 +57,9 @@ import { homePageInitialState } from './state/homePageInitialState';
 export const Home = () => {
 	const { data: attendances, isLoading: isLoadingAttendances } =
 		useListActiveAttendances();
-	const { data: clients, isLoading: isLoadingClients } =
-		useListActiveClients();
-	const {
-		mutateAsync: inactivateAttendance,
-		isSuccess: isSuccessInactivate,
-	} = useInactivateAttendance();
+	const { data: clients, isLoading: isLoadingClients } = useListActiveClients();
+	const { mutateAsync: inactivateAttendance, isSuccess: isSuccessInactivate } =
+		useInactivateAttendance();
 
 	const { mutateAsync: updateAttendance, isSuccess: isSuccessUpdate } =
 		useUpdateAttendance();
@@ -91,11 +88,7 @@ export const Home = () => {
 	);
 
 	const hasSomeData = useMemo(
-		() =>
-			!isLoadingAttendances &&
-			!isLoadingClients &&
-			attendances &&
-			clients,
+		() => !isLoadingAttendances && !isLoadingClients && attendances && clients,
 		[isLoadingAttendances, isLoadingClients, attendances, clients]
 	);
 
@@ -106,9 +99,7 @@ export const Home = () => {
 				const isSameDate =
 					moment(attendance.date).format('DD/MM/yyyy') ===
 					moment(day).format('DD/MM/yyyy');
-				const isAlreadyEddited = moment(attendance.updatedAt).isBefore(
-					day
-				);
+				const isAlreadyEddited = moment(attendance.updatedAt).isBefore(day);
 				if (isSameDate && !isAlreadyEddited) {
 					const clientOfTheAttendance = clients.find(
 						(client) => client._id === attendance.client
@@ -220,39 +211,22 @@ export const Home = () => {
 							</Typography>
 
 							<Box sx={{ marginLeft: '10px' }}>
-								<TextField
-									onChange={handleChangeDate}
-									type="date"
-								/>
+								<TextField onChange={handleChangeDate} type="date" />
 							</Box>
 						</Paper>
 
 						<Grid container spacing={2}>
 							{attendancesForTheDay.map((attendance, i) => {
-								if (
-									attendance.isDone === false &&
-									attendance.clientName
-								) {
+								if (attendance.isDone === false && attendance.clientName) {
 									return (
 										<Grid item xs={3} key={i}>
 											<Card>
 												<CardContent>
-													<Typography
-														variant="h5"
-														component="div"
-													>
+													<Typography variant="h5" component="div">
 														{attendance.clientName}
 													</Typography>
-													<Typography
-														sx={{ mb: 1.5 }}
-														color="text.primary"
-													>
-														{
-															attendance
-																?.services[0]
-																.name
-														}{' '}
-														-{' '}
+													<Typography sx={{ mb: 1.5 }} color="text.primary">
+														{attendance?.services[0].name} -{' '}
 														{attendance?.services[0].price.toLocaleString(
 															'pt-BR',
 															{
@@ -262,9 +236,7 @@ export const Home = () => {
 														)}
 													</Typography>
 													<Typography variant="h5">
-														{moment(
-															attendance?.date
-														).format(
+														{moment(attendance?.date).format(
 															'DD/MM/YYYY HH:mm'
 														)}
 													</Typography>
@@ -272,8 +244,7 @@ export const Home = () => {
 												<CardActions
 													sx={{
 														display: 'flex',
-														justifyContent:
-															'space-between',
+														justifyContent: 'space-between',
 													}}
 												>
 													<Tooltip
@@ -285,16 +256,13 @@ export const Home = () => {
 														<IconButton
 															size="large"
 															onClick={() => {
-																dispatchHomePage(
-																	{
-																		type: 'SET_OPEN_FINISH_MODAL',
-																		values: {
-																			selectedAttendanceId:
-																				attendance._id,
-																			openFinishModal: true,
-																		},
-																	}
-																);
+																dispatchHomePage({
+																	type: 'SET_OPEN_FINISH_MODAL',
+																	values: {
+																		selectedAttendanceId: attendance._id,
+																		openFinishModal: true,
+																	},
+																});
 															}}
 														>
 															<CheckCircleOutlineIcon fontSize="inherit" />
@@ -309,16 +277,13 @@ export const Home = () => {
 														<IconButton
 															size="large"
 															onClick={() =>
-																dispatchHomePage(
-																	{
-																		type: 'SET_OPEN_INACTIVATE_MODAL',
-																		values: {
-																			selectedAttendanceId:
-																				attendance._id,
-																			openInactivateModal: true,
-																		},
-																	}
-																)
+																dispatchHomePage({
+																	type: 'SET_OPEN_INACTIVATE_MODAL',
+																	values: {
+																		selectedAttendanceId: attendance._id,
+																		openInactivateModal: true,
+																	},
+																})
 															}
 														>
 															<DeleteIcon fontSize="inherit" />
@@ -337,11 +302,7 @@ export const Home = () => {
 
 			<Modal open={homePageState.openFinishModal && !isSuccessUpdate}>
 				<Box sx={modalStyle}>
-					<Typography
-						id="modal-modal-title"
-						component={'span'}
-						variant="h6"
-					>
+					<Typography id="modal-modal-title" component={'span'} variant="h6">
 						Finalizar atendimento
 					</Typography>
 
@@ -354,9 +315,7 @@ export const Home = () => {
 					>
 						<FormControl>
 							<FormControl component="fieldset">
-								<FormLabel component="legend">
-									Status do atendimento
-								</FormLabel>
+								<FormLabel component="legend">Status do atendimento</FormLabel>
 								<Controller
 									control={control}
 									name="isDone"
@@ -415,15 +374,11 @@ export const Home = () => {
 												error={!!errors.totalPaid}
 												InputProps={{
 													startAdornment: (
-														<InputAdornment position="start">
-															R$
-														</InputAdornment>
+														<InputAdornment position="start">R$</InputAdornment>
 													),
 												}}
 												{...register('totalPaid', {
-													validate: (value) =>
-														!isNaN(value) &&
-														value > 0,
+													validate: (value) => !isNaN(value) && value > 0,
 												})}
 											/>
 
@@ -468,9 +423,7 @@ export const Home = () => {
 			<AlertDelete
 				handleCloseModal={handleCloseInactivateModal}
 				handleDelete={handleInactivateAttendance}
-				showModal={
-					homePageState.openInactivateModal && !isSuccessInactivate
-				}
+				showModal={homePageState.openInactivateModal && !isSuccessInactivate}
 				text="atendimento"
 			/>
 

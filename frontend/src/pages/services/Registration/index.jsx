@@ -123,8 +123,7 @@ export const ServiceRegistrationPage = () => {
 									sx={{ marginTop: '25px' }}
 									{...register('name', {
 										required: true,
-										validate: (value) =>
-											validateText(value),
+										validate: (value) => validateText(value),
 									})}
 								/>
 
@@ -145,15 +144,12 @@ export const ServiceRegistrationPage = () => {
 									error={!!errors?.price}
 									InputProps={{
 										startAdornment: (
-											<InputAdornment position="start">
-												R$
-											</InputAdornment>
+											<InputAdornment position="start">R$</InputAdornment>
 										),
 									}}
 									{...register('price', {
 										required: true,
-										validate: (value) =>
-											validatePrice(value),
+										validate: (value) => validatePrice(value),
 									})}
 								/>
 
@@ -175,8 +171,7 @@ export const ServiceRegistrationPage = () => {
 									error={!!errors.description}
 									{...register('description', {
 										required: true,
-										validate: (value) =>
-											validateText(value),
+										validate: (value) => validateText(value),
 									})}
 								/>
 
@@ -199,10 +194,7 @@ export const ServiceRegistrationPage = () => {
 				</Grid>
 			</Grid>
 
-			<ToastError
-				open={showToast.error}
-				handleClose={handleCloseToastError}
-			/>
+			<ToastError open={showToast.error} handleClose={handleCloseToastError} />
 
 			<ToastSuccess
 				open={showToast.success}

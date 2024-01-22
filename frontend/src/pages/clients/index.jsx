@@ -161,31 +161,19 @@ export const ClientsPage = () => {
 						<Table sx={{ minWidth: 500 }}>
 							<TableHead sx={{ backgroundColor: 'primary.main' }}>
 								<TableRow>
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Nome
 									</TableCell>
 
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Endereço
 									</TableCell>
 
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Contato
 									</TableCell>
 
-									<TableCell
-										sx={{ color: 'color.white' }}
-										align="left"
-									>
+									<TableCell sx={{ color: 'color.white' }} align="left">
 										Criado em
 									</TableCell>
 
@@ -207,9 +195,7 @@ export const ClientsPage = () => {
 								).map((client, i) => (
 									<TableRow key={i}>
 										<TableCell>
-											<Typography variant="subtitle1">
-												{client.name}
-											</Typography>
+											<Typography variant="subtitle1">{client.name}</Typography>
 										</TableCell>
 
 										<TableCell align="left">
@@ -226,35 +212,23 @@ export const ClientsPage = () => {
 
 										<TableCell align="left">
 											<Typography variant="subtitle1">
-												{moment(
-													client.createdAt
-												).format('DD/MM/YYYY HH:mm')}
+												{moment(client.createdAt).format('DD/MM/YYYY HH:mm')}
 											</Typography>
 										</TableCell>
 
 										<TableCell align="center">
-											<Link
-												to={`/clientes/${client._id}`}
-											>
-												<Tooltip
-													title="Ver mais"
-													sx={{ marginRight: '10px' }}
-												>
+											<Link to={`/clientes/${client._id}`}>
+												<Tooltip title="Ver mais" sx={{ marginRight: '10px' }}>
 													<IconButton>
 														<RemoveRedEyeIcon />
 													</IconButton>
 												</Tooltip>
 											</Link>
 
-											<Tooltip
-												title="Excluir"
-												sx={{ color: 'primary.red' }}
-											>
+											<Tooltip title="Excluir" sx={{ color: 'primary.red' }}>
 												<IconButton
 													onClick={() => {
-														setClientToInactivate(
-															client._id
-														);
+														setClientToInactivate(client._id);
 														setShowModal(true);
 													}}
 												>
@@ -266,23 +240,20 @@ export const ClientsPage = () => {
 								))}
 
 								{emptyRows > 0 && (
-									<TableRow
-										style={{ height: 53 * emptyRows }}
-									>
+									<TableRow style={{ height: 53 * emptyRows }}>
 										<TableCell colSpan={6} />
 									</TableRow>
 								)}
 
-								{filteredClients.length === 0 &&
-									clients.length > 0 && (
-										<Typography
-											sx={{
-												margin: '25px 0px 0px 20px',
-											}}
-										>
-											Nenhum cliente foi encontrado.
-										</Typography>
-									)}
+								{filteredClients.length === 0 && clients.length > 0 && (
+									<Typography
+										sx={{
+											margin: '25px 0px 0px 20px',
+										}}
+									>
+										Nenhum cliente foi encontrado.
+									</Typography>
+								)}
 
 								{clients.length === 0 && (
 									<Typography
@@ -297,12 +268,7 @@ export const ClientsPage = () => {
 						</Table>
 
 						<TablePagination
-							rowsPerPageOptions={[
-								5,
-								10,
-								25,
-								{ label: 'Todos', value: -1 },
-							]}
+							rowsPerPageOptions={[5, 10, 25, { label: 'Todos', value: -1 }]}
 							count={clients.length}
 							component="div"
 							rowsPerPage={rowsPerPage}

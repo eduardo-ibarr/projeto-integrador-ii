@@ -34,8 +34,7 @@ import { useListActiveServices } from '../../hooks/services';
 import { useCreateAttendance } from '../../hooks/attendance';
 
 export const AttendancePage = () => {
-	const { data: clients, isLoading: isLoadingClients } =
-		useListActiveClients();
+	const { data: clients, isLoading: isLoadingClients } = useListActiveClients();
 	const { data: services, isLoading: isLoadingServices } =
 		useListActiveServices();
 
@@ -222,14 +221,11 @@ export const AttendancePage = () => {
 							</Box>
 
 							<Typography>
-								Selecione uma data e um horário para o
-								atendimento
+								Selecione uma data e um horário para o atendimento
 							</Typography>
 
 							<Box sx={{ display: 'flex' }}>
-								<FormControl
-									sx={{ width: '20%', marginRight: '2rem' }}
-								>
+								<FormControl sx={{ width: '20%', marginRight: '2rem' }}>
 									<Controller
 										render={(props) => (
 											<TextField
@@ -283,10 +279,7 @@ export const AttendancePage = () => {
 				</Grid>
 			</Grid>
 
-			<ToastError
-				open={showToast.error}
-				handleClose={handleCloseToastError}
-			/>
+			<ToastError open={showToast.error} handleClose={handleCloseToastError} />
 
 			<ToastSuccess
 				open={showToast.success}

@@ -26,25 +26,13 @@ export const AppRoutes = () => {
 
 				<Route path="clientes" element={<ClientsPage />} />
 				<Route path="clientes/:id" element={<FindOneClientPage />} />
-				<Route
-					path="clientes/:id/alterar"
-					element={<UpdateOneClientPage />}
-				/>
-				<Route
-					path="clientes/novo"
-					element={<ClientRegistrationPage />}
-				/>
+				<Route path="clientes/:id/alterar" element={<UpdateOneClientPage />} />
+				<Route path="clientes/novo" element={<ClientRegistrationPage />} />
 
 				<Route path="servicos" element={<ServicePage />} />
 				<Route path="servicos/:id" element={<FindOneServicePage />} />
-				<Route
-					path="servicos/:id/alterar"
-					element={<UpdateOneServicePage />}
-				/>
-				<Route
-					path="servicos/novo"
-					element={<ServiceRegistrationPage />}
-				/>
+				<Route path="servicos/:id/alterar" element={<UpdateOneServicePage />} />
+				<Route path="servicos/novo" element={<ServiceRegistrationPage />} />
 
 				<Route path="atendimentos" element={<AttendancePage />} />
 			</Routes>
