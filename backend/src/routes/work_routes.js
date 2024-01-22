@@ -6,10 +6,10 @@ const WorkController = require('../controllers/work_controller');
 const workService = new WorkService();
 const workController = new WorkController(workService);
 
-router.get('/works', workController.list);
-router.get('/works/:id', workController.show);
-router.post('/works', workController.store);
-router.patch('/works/:id', workController.update);
-router.delete('/works/:id', workController.delete);
+router.get('/works', workController.list.bind(workController));
+router.get('/works/:id', workController.show.bind(workController));
+router.post('/works', workController.store.bind(workController));
+router.patch('/works/:id', workController.update.bind(workController));
+router.delete('/works/:id', workController.delete.bind(workController));
 
 module.exports = router;

@@ -6,11 +6,11 @@ const AttendanceServices = require('../services/attendance_services');
 const attendanceServices = new AttendanceServices();
 const attendanceController = new AttendanceController(attendanceServices);
 
-router.get('/attendances', attendanceController.list);
-router.get('/attendances/:id', attendanceController.show);
-router.post('/attendances', attendanceController.store);
-router.put('/attendances/:id', attendanceController.update);
-router.patch('/attendances/:id', attendanceController.update);
-router.delete('/attendances/:id', attendanceController.delete);
+router.get('/attendances', attendanceController.list.bind(attendanceController));
+router.get('/attendances/:id', attendanceController.show.bind(attendanceController));
+router.post('/attendances', attendanceController.store.bind(attendanceController));
+router.put('/attendances/:id', attendanceController.update.bind(attendanceController));
+router.patch('/attendances/:id', attendanceController.update.bind(attendanceController));
+router.delete('/attendances/:id', attendanceController.delete.bind(attendanceController));
 
 module.exports = router;
