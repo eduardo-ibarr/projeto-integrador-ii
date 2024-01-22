@@ -5,7 +5,7 @@ module.exports = class AttendanceController {
     this.attendanceServices = attendanceServices;
   }
 
-  verifyBody(req, res, next) {
+  async verifyBody(req, res, callback) {
     const {
       _id,
       client,
@@ -38,13 +38,13 @@ module.exports = class AttendanceController {
       });
     }
 
-    next(data);
+    await callback(data);
   }
 
-  store(req, res) {
-    this.verifyBody(req, res, (data) => {
+  async store(req, res) {
+    await this.verifyBody(req, res, async (data) => {
       try {
-        this.attendanceServices.create(data);
+        await this.attendanceServices.create(data);
 
         return res.status(201).send({
           message: 'Attendance created successfully.'
@@ -57,9 +57,9 @@ module.exports = class AttendanceController {
     });
   }
 
-  list(req, res) {
+  async list(req, res) {
     try {
-      const attendances = this.attendanceServices.read();
+      const attendances = await this.attendanceServices.read();
 
       return res.status(200).send(attendances);
     } catch (error) {
@@ -69,9 +69,9 @@ module.exports = class AttendanceController {
     }
   }
 
-  show(req, res) {
+  async show(req, res) {
     try {
-      const attendance = this.attendanceServices.readOne(req.params.id);
+      const attendance = await this.attendanceServices.readOne(req.params.id);
 
       return res.status(200).send(attendance);
     } catch (error) {
@@ -81,10 +81,10 @@ module.exports = class AttendanceController {
     }
   }
 
-  update(req, res) {
-    this.verifyBody(req, res, (data) => {
+  async update(req, res) {
+    await this.verifyBody(req, res, async (data) => {
       try {
-        this.attendanceServices.update(req.params.id, data);
+        await this.attendanceServices.update(req.params.id, data);
 
         return res.status(200).send({
           message: 'Attendance updated successfully.'
@@ -97,9 +97,9 @@ module.exports = class AttendanceController {
     });
   }
 
-  delete(req, res) {
+  async delete(req, res) {
     try {
-      this.attendanceServices.delete(req.params.id);
+      await this.attendanceServices.delete(req.params.id);
 
       return res.status(200).send({
         message: 'Attendance deleted successfully.'

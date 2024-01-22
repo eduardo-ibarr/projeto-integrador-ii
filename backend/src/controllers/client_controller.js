@@ -5,23 +5,31 @@ module.exports = class ClientController {
     this.clientServices = clientServices;
   }
 
-  verifyBody(req, res, callback) {
+  async verifyBody(req, res, callback) {
     const {
       _id,
-      createdAt,
-      description,
-      isActive,
       name,
-      price
+      isActive,
+      phoneNumber,
+      cpf,
+      rg,
+      address,
+      services,
+      createdAt,
+      updatedAt
     } = req.body;
 
     const data = {
       _id,
-      createdAt,
-      description,
-      isActive,
       name,
-      price
+      isActive,
+      phoneNumber,
+      cpf,
+      rg,
+      address,
+      services,
+      createdAt,
+      updatedAt
     };
 
     const isMissingData = Object.values(data).some(value => value === undefined);
@@ -32,13 +40,13 @@ module.exports = class ClientController {
       });
     }
 
-    return callback(data);
+    await callback(data);
   }
 
-  store(req, res) {
-    this.verifyBody(req, res, (data) => {
+  async store(req, res) {
+    this.verifyBody(req, res, async (data) => {
       try {
-        this.clientServices.create(data);
+        await this.clientServices.create(data);
 
         return res.status(201).send({
           message: 'Client created successfully.'
@@ -51,9 +59,9 @@ module.exports = class ClientController {
     });
   }
 
-  list(req, res) {
+  async list(req, res) {
     try {
-      const clients = this.clientServices.read();
+      const clients = await this.clientServices.read();
 
       return res.status(200).send(clients);
     } catch (error) {
@@ -63,11 +71,11 @@ module.exports = class ClientController {
     }
   }
 
-  show(req, res) {
+  async show(req, res) {
     const { id } = req.params;
 
     try {
-      const client = this.clientServices.readOne(id);
+      const client = await this.clientServices.readOne(id);
 
       return res.status(200).send(client);
     } catch (error) {
@@ -77,10 +85,10 @@ module.exports = class ClientController {
     }
   }
 
-  update(req, res) {
-    this.verifyBody(req, res, (data) => {
+  async update(req, res) {
+    await this.verifyBody(req, res, async (data) => {
       try {
-        this.clientServices.update(req.params.id, data);
+        await this.clientServices.update(req.params.id, data);
 
         return res.status(200).send({
           message: 'Client updated successfully.'
@@ -93,9 +101,9 @@ module.exports = class ClientController {
     });
   }
 
-  delete(req, res) {
+  async delete(req, res) {
     try {
-      this.clientServices.delete(req.params.id);
+      await this.clientServices.delete(req.params.id);
 
       return res.status(200).send({
         message: 'Client deleted successfully.'

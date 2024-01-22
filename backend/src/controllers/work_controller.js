@@ -5,7 +5,7 @@ module.exports = class WorkController {
     this.workServices = workServices;
   }
 
-  verifyBody(req, res, callback) {
+  async verifyBody(req, res, callback) {
     const {
       _id,
       createdAt,
@@ -32,15 +32,17 @@ module.exports = class WorkController {
       });
     }
 
-    return callback(data);
+    await callback(data);
   }
 
   async store(req, res) {
     this.verifyBody(req, res, async (data) => {
       try {
-        const work = await this.workServices.create(data);
+        await this.workServices.create(data);
 
-        return res.status(201).send(work);
+        return res.status(201).send({
+          message: 'Work created successfully.'
+        });
       } catch (error) {
         return res.status(500).send({
           message: 'Error creating work.'
