@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Box, Button, CircularProgress, ThemeProvider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { theme } from '../../theme/theme';

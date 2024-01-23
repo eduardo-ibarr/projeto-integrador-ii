@@ -96,8 +96,8 @@ export const FindOneClientPage = () => {
 	};
 
 	const handleGetAttendancesByClient = async () => {
-		if (client[0].services) {
-			const ids = client[0].services;
+		if (client.works) {
+			const ids = client.works;
 			const attendances = [];
 			for await (const id of ids) {
 				const attendance = await attendancesServices.showAttendance(id);
@@ -113,6 +113,7 @@ export const FindOneClientPage = () => {
 		if (!isLoadingClient) {
 			handleGetAttendancesByClient();
 		}
+		console.log(client);
 	}, [client]);
 
 	if (isLoadingClient || isLoadingAttendances) {
@@ -140,14 +141,14 @@ export const FindOneClientPage = () => {
 
 						<Paper sx={{ padding: '20px', marginTop: '20px' }}>
 							<Typography variant="h6">
-								Nome do cliente: <b>{client[0].name}</b>
+								Nome do cliente: <b>{client.name}</b>
 							</Typography>
 
 							<Box sx={{ display: 'flex' }}>
 								<Typography variant="h6">
 									Contato:{' '}
 									{canShowState.phoneNumber ? (
-										<b>{client[0].phoneNumber}</b>
+										<b>{client.phoneNumber}</b>
 									) : (
 										'oculto'
 									)}
@@ -165,7 +166,7 @@ export const FindOneClientPage = () => {
 
 							<Box sx={{ display: 'flex' }}>
 								<Typography variant="h6">
-									CPF: {canShowState.cpf ? <b>{client[0].cpf}</b> : 'oculto'}
+									CPF: {canShowState.cpf ? <b>{client.cpf}</b> : 'oculto'}
 								</Typography>
 
 								<Tooltip title="Mostrar" sx={{ marginLeft: '10px' }}>
@@ -177,7 +178,7 @@ export const FindOneClientPage = () => {
 
 							<Box sx={{ display: 'flex' }}>
 								<Typography variant="h6">
-									RG: {canShowState.rg ? <b>{client[0].rg}</b> : 'oculto'}
+									RG: {canShowState.rg ? <b>{client.rg}</b> : 'oculto'}
 								</Typography>
 
 								<Tooltip title="Mostrar" sx={{ marginLeft: '10px' }}>
@@ -188,20 +189,18 @@ export const FindOneClientPage = () => {
 							</Box>
 
 							<Typography variant="h6">
-								Endereço: <b>{client[0].address}</b>
+								Endereço: <b>{client.address}</b>
 							</Typography>
 
 							<Typography variant="h6">
 								Cliente criado em:{' '}
-								<b>{moment(client[0].createdAt).format('DD/MM/YYYY HH:mm')}</b>
+								<b>{moment(client.createdAt).format('DD/MM/YYYY HH:mm')}</b>
 							</Typography>
 
-							{client[0].updatedAt && (
+							{client.updatedAt && (
 								<Typography variant="h6">
 									Cliente alterado por último em:{' '}
-									<b>
-										{moment(client[0].updatedAt).format('DD/MM/YYYY HH:mm')}
-									</b>
+									<b>{moment(client.updatedAt).format('DD/MM/YYYY HH:mm')}</b>
 								</Typography>
 							)}
 						</Paper>
@@ -246,13 +245,11 @@ export const FindOneClientPage = () => {
 										return;
 									}
 
-									attendance = attendance[0];
-
 									return (
 										<TableRow key={i}>
 											<TableCell>
 												<Typography variant="subtitle1">
-													{attendance.services.map((service) => service.name)}
+													{attendance.works.map((work) => work.name)}
 												</Typography>
 											</TableCell>
 											<TableCell align="left">

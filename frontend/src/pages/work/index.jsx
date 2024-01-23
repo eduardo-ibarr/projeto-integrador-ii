@@ -35,21 +35,18 @@ import {
 
 import { theme } from '../../theme/theme';
 
-import {
-	useListActiveServices,
-	useInactivateService,
-} from '../../hooks/services';
+import { useListActiveWorks, useInactivateWork } from '../../hooks/works';
 
-export const ServicePage = () => {
-	const { data: services, isLoading } = useListActiveServices();
-	const { mutateAsync: inactivateService, isSuccess: isSuccessInactivate } =
-		useInactivateService();
+export const WorkPage = () => {
+	const { data: Works, isLoading } = useListActiveWorks();
+	const { mutateAsync: inactivateWork, isSuccess: isSuccessInactivate } =
+		useInactivateWork();
 
-	const [servicesToSearch, setServicesToSearch] = useState('');
+	const [worksToSearch, setWorksToSearch] = useState('');
 
 	const [showModal, setShowModal] = useState(false);
 
-	const [serviceToInactivate, setServiceToInactivate] = useState();
+	const [workToInactivate, setWorkToInactivate] = useState();
 
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -60,14 +57,14 @@ export const ServicePage = () => {
 	});
 
 	const emptyRows =
-		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services?.length) : 0;
+		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - Works?.length) : 0;
 
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
 	};
 
-	const handleChangeServicesToSearch = (event) => {
-		setServicesToSearch(event.target.value);
+	const handleChangeWorksToSearch = (event) => {
+		setWorksToSearch(event.target.value);
 	};
 
 	const handleChangeRowsPerPage = (event) => {
@@ -97,9 +94,9 @@ export const ServicePage = () => {
 		setShowModal(false);
 	};
 
-	const handleInactivateService = async () => {
+	const handleInactivateWork = async () => {
 		try {
-			await inactivateService(serviceToInactivate);
+			await inactivateWork(workToInactivate);
 			setShowToast((current) => {
 				return {
 					...current,
@@ -121,15 +118,15 @@ export const ServicePage = () => {
 		return <LoadingPage />;
 	}
 
-	const filteredServices = services.filter((service) => {
-		return service.name.toLowerCase().includes(servicesToSearch.toLowerCase());
+	const filteredWorks = Works.filter((Work) => {
+		return Work.name.toLowerCase().includes(worksToSearch.toLowerCase());
 	});
 
 	return (
 		<ThemeProvider theme={theme}>
 			<Grid container spacing={2}>
 				<Grid item xl={2} lg={3} md={4} sm={5} xs={6}>
-					<SideMenu activeServices />
+					<SideMenu activeWorks />
 				</Grid>
 
 				<Grid
@@ -154,7 +151,7 @@ export const ServicePage = () => {
 							id="standard-basic"
 							label="Busque por um serviço"
 							variant="standard"
-							onChange={handleChangeServicesToSearch}
+							onChange={handleChangeWorksToSearch}
 						/>
 					</Paper>
 
@@ -176,26 +173,24 @@ export const ServicePage = () => {
 							</TableHead>
 							<TableBody>
 								{(rowsPerPage > 0
-									? servicesToSearch !== ''
-										? filteredServices.slice(
+									? worksToSearch !== ''
+										? filteredWorks.slice(
 												page * rowsPerPage,
 												page * rowsPerPage + rowsPerPage
 										  )
-										: services.slice(
+										: Works.slice(
 												page * rowsPerPage,
 												page * rowsPerPage + rowsPerPage
 										  )
-									: services
-								).map((service, i) => (
+									: Works
+								).map((Work, i) => (
 									<TableRow key={i}>
 										<TableCell sx={{ color: 'text.primary' }}>
-											<Typography variant="subtitle1">
-												{service.name}
-											</Typography>
+											<Typography variant="subtitle1">{Work.name}</Typography>
 										</TableCell>
 										<TableCell align="left" sx={{ color: 'text.primary' }}>
 											<Typography variant="subtitle1">
-												{service.price.toLocaleString('pt-BR', {
+												{Work.price.toLocaleString('pt-BR', {
 													style: 'currency',
 													currency: 'BRL',
 												})}
@@ -203,11 +198,11 @@ export const ServicePage = () => {
 										</TableCell>
 										<TableCell align="left" sx={{ color: 'text.primary' }}>
 											<Typography variant="subtitle1">
-												{moment(service.createdAt).format('DD/MM/YYYY HH:mm')}
+												{moment(Work.createdAt).format('DD/MM/YYYY HH:mm')}
 											</Typography>
 										</TableCell>
 										<TableCell align="center" sx={{ color: 'text.primary' }}>
-											<Link to={`/servicos/${service._id}`}>
+											<Link to={`/servicos/${Work._id}`}>
 												<Tooltip title="Ver mais" sx={{ marginRight: '10px' }}>
 													<IconButton>
 														<RemoveRedEyeIcon />
@@ -217,7 +212,7 @@ export const ServicePage = () => {
 											<Tooltip title="Excluir" sx={{ color: 'primary.red' }}>
 												<IconButton
 													onClick={() => {
-														setServiceToInactivate(service._id);
+														setWorkToInactivate(Work._id);
 														setShowModal(true);
 													}}
 												>
@@ -234,7 +229,7 @@ export const ServicePage = () => {
 									</TableRow>
 								)}
 
-								{filteredServices.length === 0 && services.length > 0 && (
+								{filteredWorks.length === 0 && Works.length > 0 && (
 									<Typography
 										sx={{
 											margin: '25px 0px 0px 20px',
@@ -244,7 +239,7 @@ export const ServicePage = () => {
 									</Typography>
 								)}
 
-								{services.length === 0 && (
+								{Works.length === 0 && (
 									<Typography
 										sx={{
 											margin: '25px 0px 0px 20px',
@@ -257,7 +252,7 @@ export const ServicePage = () => {
 						</Table>
 						<TablePagination
 							rowsPerPageOptions={[5, 10, 25, { label: 'Todos', value: -1 }]}
-							count={services.length}
+							count={Works.length}
 							component="div"
 							rowsPerPage={rowsPerPage}
 							page={page}
@@ -278,7 +273,7 @@ export const ServicePage = () => {
 
 			<AlertDelete
 				handleCloseModal={handleCloseModal}
-				handleDelete={handleInactivateService}
+				handleDelete={handleInactivateWork}
 				showModal={showModal && !isSuccessInactivate}
 				text="serviço"
 			/>

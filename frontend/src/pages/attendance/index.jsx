@@ -30,13 +30,12 @@ import {
 } from '../../components';
 
 import { useListActiveClients, useUpdateClient } from '../../hooks/clients';
-import { useListActiveServices } from '../../hooks/services';
+import { useListActiveWorks } from '../../hooks/works';
 import { useCreateAttendance } from '../../hooks/attendance';
 
 export const AttendancePage = () => {
 	const { data: clients, isLoading: isLoadingClients } = useListActiveClients();
-	const { data: services, isLoading: isLoadingServices } =
-		useListActiveServices();
+	const { data: works, isLoading: isLoadingWorks } = useListActiveWorks();
 
 	const { mutateAsync: updateClient } = useUpdateClient();
 	const { mutateAsync: createAttendance } = useCreateAttendance();
@@ -53,12 +52,12 @@ export const AttendancePage = () => {
 		formState: { errors },
 	} = useForm();
 
-	if (isLoadingClients || isLoadingServices) {
+	if (isLoadingClients || isLoadingWorks) {
 		return <LoadingPage />;
 	}
 
 	const clientsNames = clients.map((client) => client.name);
-	const servicesNames = services.map((service) => service.name);
+	const worksNames = works.map((service) => service.name);
 
 	const handleCloseToastSuccess = () => {
 		setShowToast((current) => {
@@ -78,14 +77,14 @@ export const AttendancePage = () => {
 		});
 	};
 
-	const generateAttendance = ({ clientSelected, data, serviceSelected }) => {
+	const generateAttendance = ({ clientSelected, data, workselected }) => {
 		return {
 			_id: v4(),
 			client: clientSelected._id,
 			isActive: true,
 			date: new Date(data.date + ' ' + data.time),
-			services: serviceSelected,
-			total: serviceSelected.price,
+			works: workselected,
+			total: workselected.price,
 			isPaid: false,
 			isDone: false,
 			createdAt: new Date(),
@@ -96,19 +95,17 @@ export const AttendancePage = () => {
 		clientSelected,
 		attendance,
 	}) => {
-		clientSelected.services.push(attendance._id);
+		clientSelected.works.push(attendance._id);
 	};
 
 	const findSelectedValuesOn = (data) => {
 		const clientSelected = clients.find(
 			(client) => client.name === data.client
 		);
-		const serviceSelected = services.find(
-			(service) => service.name === data.service
-		);
+		const workselected = works.find((service) => service.name === data.service);
 		return {
 			clientSelected,
-			serviceSelected,
+			workselected,
 		};
 	};
 
@@ -137,11 +134,11 @@ export const AttendancePage = () => {
 	};
 
 	const onSubmit = async (data) => {
-		const { clientSelected, serviceSelected } = findSelectedValuesOn(data);
+		const { clientSelected, workselected } = findSelectedValuesOn(data);
 		const attendance = generateAttendance({
 			clientSelected,
 			data,
-			serviceSelected,
+			workselected,
 		});
 		updateClientSelectedWithAttendance({ clientSelected, attendance });
 		await sendRequests({ attendance, clientSelected });
@@ -200,7 +197,7 @@ export const AttendancePage = () => {
 									<Autocomplete
 										{...register('service')}
 										disablePortal
-										options={servicesNames}
+										options={worksNames}
 										sx={{ marginTop: '1rem' }}
 										renderInput={(params) => (
 											<TextField

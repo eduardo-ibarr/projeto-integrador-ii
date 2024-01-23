@@ -1,3 +1,3 @@
 export * as clientsService from './clients';
-export * as servicesService from './services';
+export * as worksService from './works';
 export * as attendancesServices from './attendances';

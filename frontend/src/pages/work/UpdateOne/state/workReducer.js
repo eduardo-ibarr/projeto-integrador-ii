@@ -1,4 +1,4 @@
-export const serviceReducer = (state, action) => {
+export const workReducer = (state, action) => {
 	switch (action.type) {
 		case 'DISABLE_NAME':
 			return {

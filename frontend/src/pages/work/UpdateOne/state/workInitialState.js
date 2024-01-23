@@ -1,4 +1,4 @@
-export const serviceInitialState = {
+export const workInitialState = {
 	name: {
 		disabled: true,
 	},

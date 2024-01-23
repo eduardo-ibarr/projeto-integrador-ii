@@ -40,7 +40,6 @@ import {
 } from '../../components';
 
 import { theme } from '../../theme/theme';
-
 import { modalStyle } from '../../theme/modalStyle';
 
 import {
@@ -226,8 +225,8 @@ export const Home = () => {
 														{attendance.clientName}
 													</Typography>
 													<Typography sx={{ mb: 1.5 }} color="text.primary">
-														{attendance?.services[0].name} -{' '}
-														{attendance?.services[0].price.toLocaleString(
+														{attendance?.works[0].name} -{' '}
+														{attendance?.works[0].price.toLocaleString(
 															'pt-BR',
 															{
 																style: 'currency',

@@ -26,10 +26,10 @@ import {
 
 import { theme } from '../../../theme/theme';
 
-import { useCreateService } from '../../../hooks/services';
+import { useCreateWork } from '../../../hooks/works';
 
-export const ServiceRegistrationPage = () => {
-	const { mutateAsync: createService } = useCreateService();
+export const WorkRegistrationPage = () => {
+	const { mutateAsync: createWork } = useCreateWork();
 
 	const {
 		register,
@@ -60,7 +60,7 @@ export const ServiceRegistrationPage = () => {
 		});
 	};
 
-	const generateService = (data) => {
+	const generateWork = (data) => {
 		const { name, price, description } = data;
 		return {
 			_id: v4(),
@@ -74,8 +74,8 @@ export const ServiceRegistrationPage = () => {
 
 	const onSubmit = async (data) => {
 		try {
-			const service = generateService(data);
-			await createService(service);
+			const work = generateWork(data);
+			await createWork(work);
 			setShowToast((current) => {
 				return {
 					...current,
@@ -97,7 +97,7 @@ export const ServiceRegistrationPage = () => {
 		<ThemeProvider theme={theme}>
 			<Grid container spacing={2}>
 				<Grid item xl={2} lg={3} md={4} sm={5} xs={6}>
-					<SideMenu activeServices />
+					<SideMenu activeWorks />
 				</Grid>
 
 				<Grid

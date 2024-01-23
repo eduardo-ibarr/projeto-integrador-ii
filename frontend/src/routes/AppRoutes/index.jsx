@@ -10,10 +10,10 @@ import { ClientRegistrationPage } from '../../pages/clients/Registration';
 import { FindOneClientPage } from '../../pages/clients/FindOne';
 import { UpdateOneClientPage } from '../../pages/clients/UpdateOne';
 
-import { ServicePage } from '../../pages/services';
-import { ServiceRegistrationPage } from '../../pages/services/Registration';
-import { FindOneServicePage } from '../../pages/services/FindOne';
-import { UpdateOneServicePage } from '../../pages/services/UpdateOne';
+import { WorkPage } from '../../pages/work';
+import { WorkRegistrationPage } from '../../pages/work/Registration';
+import { FindOneWorkPage } from '../../pages/work/FindOne';
+import { UpdateOneWorkPage } from '../../pages/work/UpdateOne';
 
 import { AttendancePage } from '../../pages/attendance';
 
@@ -29,10 +29,10 @@ export const AppRoutes = () => {
 				<Route path="clientes/:id/alterar" element={<UpdateOneClientPage />} />
 				<Route path="clientes/novo" element={<ClientRegistrationPage />} />
 
-				<Route path="servicos" element={<ServicePage />} />
-				<Route path="servicos/:id" element={<FindOneServicePage />} />
-				<Route path="servicos/:id/alterar" element={<UpdateOneServicePage />} />
-				<Route path="servicos/novo" element={<ServiceRegistrationPage />} />
+				<Route path="servicos" element={<WorkPage />} />
+				<Route path="servicos/:id" element={<FindOneWorkPage />} />
+				<Route path="servicos/:id/alterar" element={<UpdateOneWorkPage />} />
+				<Route path="servicos/novo" element={<WorkRegistrationPage />} />
 
 				<Route path="atendimentos" element={<AttendancePage />} />
 			</Routes>

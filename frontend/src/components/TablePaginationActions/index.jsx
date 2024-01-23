@@ -1,7 +1,5 @@
 import React from 'react';
-
 import { Box, IconButton, useTheme } from '@mui/material';
-
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';

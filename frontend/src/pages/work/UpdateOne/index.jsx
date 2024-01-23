@@ -28,16 +28,16 @@ import {
 
 import { theme } from '../../../theme/theme';
 
-import { serviceReducer } from './state/serviceReducer';
-import { serviceInitialState } from './state/serviceInitialState';
+import { workReducer } from './state/workReducer';
+import { workInitialState } from './state/workInitialState';
 
-import { useShowService, useUpdateService } from '../../../hooks/services';
+import { useShowWork, useUpdateWork } from '../../../hooks/works';
 import { validatePrice, validateText } from '../utils';
 
-export const UpdateOneServicePage = () => {
+export const UpdateOneWorkPage = () => {
 	const { id } = useParams();
-	const { mutateAsync: updateService } = useUpdateService();
-	const { data: service, isLoading } = useShowService(id);
+	const { mutateAsync: updateWork } = useUpdateWork();
+	const { data: work, isLoading } = useShowWork(id);
 
 	const {
 		register,
@@ -46,17 +46,14 @@ export const UpdateOneServicePage = () => {
 		reset,
 	} = useForm();
 
-	const [serviceState, dispatchService] = useReducer(
-		serviceReducer,
-		serviceInitialState
-	);
+	const [workState, dispatchWork] = useReducer(workReducer, workInitialState);
 
 	const isDisabled = useMemo(
 		() =>
-			serviceState.name.disabled &&
-			serviceState.price.disabled &&
-			serviceState.description.disabled,
-		[serviceState]
+			workState.name.disabled &&
+			workState.price.disabled &&
+			workState.description.disabled,
+		[workState]
 	);
 
 	const [showToast, setShowToast] = useState({
@@ -83,27 +80,27 @@ export const UpdateOneServicePage = () => {
 	};
 
 	const handleDisableName = () => {
-		dispatchService({
+		dispatchWork({
 			type: 'DISABLE_NAME',
-			disabled: !serviceState.name.disabled,
+			disabled: !workState.name.disabled,
 		});
 	};
 
 	const handleDisablePrice = () => {
-		dispatchService({
+		dispatchWork({
 			type: 'DISABLE_PRICE',
-			disabled: !serviceState.price.disabled,
+			disabled: !workState.price.disabled,
 		});
 	};
 
 	const handleDisableDescription = () => {
-		dispatchService({
+		dispatchWork({
 			type: 'DISABLE_DESCRIPTION',
-			disabled: !serviceState.description.disabled,
+			disabled: !workState.description.disabled,
 		});
 	};
 
-	const generateService = (data) => {
+	const generateWork = (data) => {
 		const { name, price, description } = data;
 		return {
 			name,
@@ -115,8 +112,8 @@ export const UpdateOneServicePage = () => {
 
 	const onSubmit = async (data) => {
 		try {
-			const service = generateService(data);
-			await updateService({ id, data: service });
+			const Work = generateWork(data);
+			await updateWork({ id, data: Work });
 			setShowToast((current) => {
 				return {
 					...current,
@@ -136,14 +133,14 @@ export const UpdateOneServicePage = () => {
 
 	useEffect(() => {
 		if (!isLoading) {
-			const { name, price, description } = service[0];
+			const { name, price, description } = work[0];
 			reset({
 				name,
 				price,
 				description,
 			});
 		}
-	}, [service]);
+	}, [work]);
 
 	if (isLoading) {
 		return <LoadingPage />;
@@ -153,7 +150,7 @@ export const UpdateOneServicePage = () => {
 		<ThemeProvider theme={theme}>
 			<Grid container spacing={2}>
 				<Grid item xl={2} lg={3} md={4} sm={5} xs={6}>
-					<SideMenu activeServices />
+					<SideMenu activeWorks />
 				</Grid>
 
 				<Grid
@@ -181,7 +178,7 @@ export const UpdateOneServicePage = () => {
 										fullWidth
 										id="outlined-basic"
 										label="Nome do servico"
-										disabled={serviceState.name.disabled}
+										disabled={workState.name.disabled}
 										variant="outlined"
 										error={!!errors?.name}
 										{...register('name', {
@@ -214,7 +211,7 @@ export const UpdateOneServicePage = () => {
 										fullWidth
 										id="outlined-basic"
 										label="Preço"
-										disabled={serviceState.price.disabled}
+										disabled={workState.price.disabled}
 										variant="outlined"
 										error={!!errors?.price}
 										InputProps={{
@@ -252,7 +249,7 @@ export const UpdateOneServicePage = () => {
 										fullWidth
 										id="outlined-basic"
 										label="Descrição"
-										disabled={serviceState.description.disabled}
+										disabled={workState.description.disabled}
 										variant="outlined"
 										error={!!errors?.description}
 										{...register('description', {

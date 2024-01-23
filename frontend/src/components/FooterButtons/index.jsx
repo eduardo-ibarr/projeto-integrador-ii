@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Box, Button, ThemeProvider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { theme } from '../../theme/theme';

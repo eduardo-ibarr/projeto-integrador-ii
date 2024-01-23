@@ -1,24 +1,9 @@
 import React from 'react';
-
 import { Button, Modal, ThemeProvider, Typography } from '@mui/material';
-
 import { Box } from '@mui/system';
-
 import { theme } from '../../theme/theme';
-
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-
-const style = {
-	position: 'absolute',
-	top: '50%',
-	left: '50%',
-	transform: 'translate(-50%, -50%)',
-	width: 400,
-	bgcolor: 'background.paper',
-	borderRadius: '10px',
-	boxShadow: 24,
-	p: 4,
-};
+import { modalStyle } from '../../theme/modalStyle';
 
 export const AlertDelete = ({
 	showModal,
@@ -34,7 +19,7 @@ export const AlertDelete = ({
 				aria-labelledby="modal-modal-title"
 				aria-describedby="modal-modal-description"
 			>
-				<Box sx={style}>
+				<Box sx={modalStyle}>
 					<Typography
 						id="modal-modal-title"
 						sx={{
