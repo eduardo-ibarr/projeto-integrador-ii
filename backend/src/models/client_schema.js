@@ -9,7 +9,7 @@ const clientSchema = new mongoose.Schema(
     cpf: { type: String, required: true },
     rg: { type: String, required: true },
     address: { type: String, required: true },
-    services: [
+    works: [
       { type: String, required: true },
     ],
     createdAt: { type: Date, required: true },

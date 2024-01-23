@@ -12,7 +12,7 @@ module.exports = class AttendanceController {
       createdAt,
       date,
       isActive,
-      services,
+      works,
       isDone,
       isPaid,
       total
@@ -24,7 +24,7 @@ module.exports = class AttendanceController {
       createdAt,
       date,
       isActive,
-      services,
+      works,
       isDone,
       isPaid,
       total
